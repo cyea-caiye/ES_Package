@@ -1,0 +1,45 @@
+#' @rdname lesreg.highdim
+#' @param ... further arguments passed to or from other methods.
+#' @method print lesreg.highdim
+#' @export
+print.lesreg.highdim <- function(x, ...){
+  get_coef <- function(intercept, beta){
+    if(inherits(beta, "Matrix")){
+      beta_names <- rownames(beta)
+      beta <- as.vector(beta)
+      names(beta) <- beta_names
+    } else {
+      beta <- as.vector(beta)
+    }
+    if(is.null(names(beta))){
+      names(beta) <- paste0("V", seq_along(beta))
+    }
+    c("(Intercept)" = as.numeric(intercept), beta)
+  }
+  if(!is.null(cl <- x$call)){
+    cat("Call:\n")
+    dput(cl)
+  }
+  beta_coef <- get_coef(x$beta0_hat, x$beta_hat)
+  theta_coef <- get_coef(x$theta0_hat, x$theta_hat)
+  cat("\nQuantile regression coefficients:\n")
+  print(beta_coef[beta_coef != 0], ...)
+  cat("\nExpected shortfall regression coefficients:\n")
+  print(theta_coef[theta_coef != 0], ...)
+  cat("\nTuning parameters:\n")
+  cat("  Quantile regression lambda:", x$lambda_beta, "\n")
+  cat("  Expected shortfall regression lambda:", x$lambda_theta, "\n")
+  cat("\nNumber of nonzero coefficients:\n")
+  cat("  Quantile regression:", sum(beta_coef[-1] != 0), "of", length(beta_coef) - 1, "\n")
+  cat("  Expected shortfall regression:", sum(theta_coef[-1] != 0), "of", length(theta_coef) - 1, "\n")
+  if(!is.null(x$tau)){
+    cat("\nTau:", x$tau, "\n")
+  }
+  if(!is.null(x$tail)){
+    cat("Tail:", x$tail, "\n")
+  }
+  if(!is.null(x$tuning.method)){
+    cat("Tuning method:", x$tuning.method, "\n")
+  }
+  invisible(x)
+}
