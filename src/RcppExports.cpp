@@ -13,7 +13,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // AS_ES
 NumericVector AS_ES(NumericVector THETA, NumericVector y, double empiricalES, NumericVector ES, int RowsOfy, int esPredict);
-RcppExport SEXP _mypkg_AS_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
+RcppExport SEXP _esTools_AS_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -29,7 +29,7 @@ END_RCPP
 }
 // caviar_AS
 NumericVector caviar_AS(NumericVector BETA, NumericVector y, double empiricalQuantile, NumericVector VaR, int RowsOfy, int varPredict);
-RcppExport SEXP _mypkg_caviar_AS(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
+RcppExport SEXP _esTools_caviar_AS(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -45,7 +45,7 @@ END_RCPP
 }
 // AS12_ES
 NumericVector AS12_ES(NumericVector THETA, NumericVector y, double empiricalES, NumericVector ES, int RowsOfy, int esPredict);
-RcppExport SEXP _mypkg_AS12_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
+RcppExport SEXP _esTools_AS12_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -61,7 +61,7 @@ END_RCPP
 }
 // caviar_AS12
 NumericVector caviar_AS12(NumericVector BETA, NumericVector y, double empiricalQuantile, NumericVector VaR, int RowsOfy, int varPredict);
-RcppExport SEXP _mypkg_caviar_AS12(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
+RcppExport SEXP _esTools_caviar_AS12(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -77,7 +77,7 @@ END_RCPP
 }
 // GARCH_ES
 NumericVector GARCH_ES(NumericVector THETA, NumericVector y, double empiricalES, NumericVector ES, int RowsOfy, int esPredict);
-RcppExport SEXP _mypkg_GARCH_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
+RcppExport SEXP _esTools_GARCH_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -93,7 +93,7 @@ END_RCPP
 }
 // caviar_GARCH
 NumericVector caviar_GARCH(NumericVector BETA, NumericVector y, double empiricalQuantile, NumericVector VaR, int RowsOfy, int varPredict);
-RcppExport SEXP _mypkg_caviar_GARCH(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
+RcppExport SEXP _esTools_caviar_GARCH(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -109,7 +109,7 @@ END_RCPP
 }
 // SAV_ES
 NumericVector SAV_ES(NumericVector THETA, NumericVector y, double empiricalES, NumericVector ES, int RowsOfy, int esPredict);
-RcppExport SEXP _mypkg_SAV_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
+RcppExport SEXP _esTools_SAV_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -125,7 +125,7 @@ END_RCPP
 }
 // caviar_SAV
 NumericVector caviar_SAV(NumericVector BETA, NumericVector y, double empiricalQuantile, NumericVector VaR, int RowsOfy, int varPredict);
-RcppExport SEXP _mypkg_caviar_SAV(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
+RcppExport SEXP _esTools_caviar_SAV(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -141,7 +141,7 @@ END_RCPP
 }
 // SAV12_ES
 NumericVector SAV12_ES(NumericVector THETA, NumericVector y, double empiricalES, NumericVector ES, int RowsOfy, int esPredict);
-RcppExport SEXP _mypkg_SAV12_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
+RcppExport SEXP _esTools_SAV12_ES(SEXP THETASEXP, SEXP ySEXP, SEXP empiricalESSEXP, SEXP ESSEXP, SEXP RowsOfySEXP, SEXP esPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -157,7 +157,7 @@ END_RCPP
 }
 // caviar_SAV12
 NumericVector caviar_SAV12(NumericVector BETA, NumericVector y, double empiricalQuantile, NumericVector VaR, int RowsOfy, int varPredict);
-RcppExport SEXP _mypkg_caviar_SAV12(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
+RcppExport SEXP _esTools_caviar_SAV12(SEXP BETASEXP, SEXP ySEXP, SEXP empiricalQuantileSEXP, SEXP VaRSEXP, SEXP RowsOfySEXP, SEXP varPredictSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -173,7 +173,7 @@ END_RCPP
 }
 // sgn
 int sgn(const double x);
-RcppExport SEXP _mypkg_sgn(SEXP xSEXP) {
+RcppExport SEXP _esTools_sgn(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -184,7 +184,7 @@ END_RCPP
 }
 // f1
 double f1(const double x, const arma::vec& resSq, const int n, const double rhs);
-RcppExport SEXP _mypkg_f1(SEXP xSEXP, SEXP resSqSEXP, SEXP nSEXP, SEXP rhsSEXP) {
+RcppExport SEXP _esTools_f1(SEXP xSEXP, SEXP resSqSEXP, SEXP nSEXP, SEXP rhsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -198,7 +198,7 @@ END_RCPP
 }
 // rootf1
 double rootf1(const arma::vec& resSq, const int n, const double rhs, double low, double up, const double tol, const int maxIte);
-RcppExport SEXP _mypkg_rootf1(SEXP resSqSEXP, SEXP nSEXP, SEXP rhsSEXP, SEXP lowSEXP, SEXP upSEXP, SEXP tolSEXP, SEXP maxIteSEXP) {
+RcppExport SEXP _esTools_rootf1(SEXP resSqSEXP, SEXP nSEXP, SEXP rhsSEXP, SEXP lowSEXP, SEXP upSEXP, SEXP tolSEXP, SEXP maxIteSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -215,7 +215,7 @@ END_RCPP
 }
 // huberDer
 double huberDer(const arma::vec& res, const double tau, const int n);
-RcppExport SEXP _mypkg_huberDer(SEXP resSEXP, SEXP tauSEXP, SEXP nSEXP) {
+RcppExport SEXP _esTools_huberDer(SEXP resSEXP, SEXP tauSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -228,7 +228,7 @@ END_RCPP
 }
 // huberMean
 double huberMean(arma::vec X, const int n, const double tol, const int iteMax);
-RcppExport SEXP _mypkg_huberMean(SEXP XSEXP, SEXP nSEXP, SEXP tolSEXP, SEXP iteMaxSEXP) {
+RcppExport SEXP _esTools_huberMean(SEXP XSEXP, SEXP nSEXP, SEXP tolSEXP, SEXP iteMaxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -242,7 +242,7 @@ END_RCPP
 }
 // mad
 double mad(const arma::vec& x);
-RcppExport SEXP _mypkg_mad(SEXP xSEXP) {
+RcppExport SEXP _esTools_mad(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -253,7 +253,7 @@ END_RCPP
 }
 // standardize
 arma::mat standardize(arma::mat X, const arma::rowvec& mx, const arma::vec& sx1, const int p);
-RcppExport SEXP _mypkg_standardize(SEXP XSEXP, SEXP mxSEXP, SEXP sx1SEXP, SEXP pSEXP) {
+RcppExport SEXP _esTools_standardize(SEXP XSEXP, SEXP mxSEXP, SEXP sx1SEXP, SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -267,7 +267,7 @@ END_RCPP
 }
 // updateHuber
 void updateHuber(const arma::mat& Z, const arma::vec& res, arma::vec& der, arma::vec& grad, const int n, const double tau, const double n1);
-RcppExport SEXP _mypkg_updateHuber(SEXP ZSEXP, SEXP resSEXP, SEXP derSEXP, SEXP gradSEXP, SEXP nSEXP, SEXP tauSEXP, SEXP n1SEXP) {
+RcppExport SEXP _esTools_updateHuber(SEXP ZSEXP, SEXP resSEXP, SEXP derSEXP, SEXP gradSEXP, SEXP nSEXP, SEXP tauSEXP, SEXP n1SEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
@@ -283,7 +283,7 @@ END_RCPP
 }
 // adaHuberReg
 Rcpp::List adaHuberReg(const arma::mat& X, arma::vec Y, const double epsilon, const int iteMax);
-RcppExport SEXP _mypkg_adaHuberReg(SEXP XSEXP, SEXP YSEXP, SEXP epsilonSEXP, SEXP iteMaxSEXP) {
+RcppExport SEXP _esTools_adaHuberReg(SEXP XSEXP, SEXP YSEXP, SEXP epsilonSEXP, SEXP iteMaxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -297,29 +297,29 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mypkg_AS_ES", (DL_FUNC) &_mypkg_AS_ES, 6},
-    {"_mypkg_caviar_AS", (DL_FUNC) &_mypkg_caviar_AS, 6},
-    {"_mypkg_AS12_ES", (DL_FUNC) &_mypkg_AS12_ES, 6},
-    {"_mypkg_caviar_AS12", (DL_FUNC) &_mypkg_caviar_AS12, 6},
-    {"_mypkg_GARCH_ES", (DL_FUNC) &_mypkg_GARCH_ES, 6},
-    {"_mypkg_caviar_GARCH", (DL_FUNC) &_mypkg_caviar_GARCH, 6},
-    {"_mypkg_SAV_ES", (DL_FUNC) &_mypkg_SAV_ES, 6},
-    {"_mypkg_caviar_SAV", (DL_FUNC) &_mypkg_caviar_SAV, 6},
-    {"_mypkg_SAV12_ES", (DL_FUNC) &_mypkg_SAV12_ES, 6},
-    {"_mypkg_caviar_SAV12", (DL_FUNC) &_mypkg_caviar_SAV12, 6},
-    {"_mypkg_sgn", (DL_FUNC) &_mypkg_sgn, 1},
-    {"_mypkg_f1", (DL_FUNC) &_mypkg_f1, 4},
-    {"_mypkg_rootf1", (DL_FUNC) &_mypkg_rootf1, 7},
-    {"_mypkg_huberDer", (DL_FUNC) &_mypkg_huberDer, 3},
-    {"_mypkg_huberMean", (DL_FUNC) &_mypkg_huberMean, 4},
-    {"_mypkg_mad", (DL_FUNC) &_mypkg_mad, 1},
-    {"_mypkg_standardize", (DL_FUNC) &_mypkg_standardize, 4},
-    {"_mypkg_updateHuber", (DL_FUNC) &_mypkg_updateHuber, 7},
-    {"_mypkg_adaHuberReg", (DL_FUNC) &_mypkg_adaHuberReg, 4},
+    {"_esTools_AS_ES", (DL_FUNC) &_esTools_AS_ES, 6},
+    {"_esTools_caviar_AS", (DL_FUNC) &_esTools_caviar_AS, 6},
+    {"_esTools_AS12_ES", (DL_FUNC) &_esTools_AS12_ES, 6},
+    {"_esTools_caviar_AS12", (DL_FUNC) &_esTools_caviar_AS12, 6},
+    {"_esTools_GARCH_ES", (DL_FUNC) &_esTools_GARCH_ES, 6},
+    {"_esTools_caviar_GARCH", (DL_FUNC) &_esTools_caviar_GARCH, 6},
+    {"_esTools_SAV_ES", (DL_FUNC) &_esTools_SAV_ES, 6},
+    {"_esTools_caviar_SAV", (DL_FUNC) &_esTools_caviar_SAV, 6},
+    {"_esTools_SAV12_ES", (DL_FUNC) &_esTools_SAV12_ES, 6},
+    {"_esTools_caviar_SAV12", (DL_FUNC) &_esTools_caviar_SAV12, 6},
+    {"_esTools_sgn", (DL_FUNC) &_esTools_sgn, 1},
+    {"_esTools_f1", (DL_FUNC) &_esTools_f1, 4},
+    {"_esTools_rootf1", (DL_FUNC) &_esTools_rootf1, 7},
+    {"_esTools_huberDer", (DL_FUNC) &_esTools_huberDer, 3},
+    {"_esTools_huberMean", (DL_FUNC) &_esTools_huberMean, 4},
+    {"_esTools_mad", (DL_FUNC) &_esTools_mad, 1},
+    {"_esTools_standardize", (DL_FUNC) &_esTools_standardize, 4},
+    {"_esTools_updateHuber", (DL_FUNC) &_esTools_updateHuber, 7},
+    {"_esTools_adaHuberReg", (DL_FUNC) &_esTools_adaHuberReg, 4},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_mypkg(DllInfo *dll) {
+RcppExport void R_init_esTools(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

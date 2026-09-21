@@ -1,17 +1,35 @@
-Package: mypkg
+Package: esTools
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A Comprehensive Toolkit for Two-Step Expected Shortfall Regression
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
-      role = c("aut", "cre")
-    )
+      "Ye", "Cai",
+      email = "cyea@umich.edu",
+      role = c("aut")
+    ),
+    person(
+    "Peiyao", "Cai", 
+    email = "pycai@umich.edu", 
+    role = c("aut", "cre")
+    ),
+    person("Kean Ming", "Tan",
+    email = "keanming@umich.edu",
+    role = "aut"
+    ),
+    person("Xuming", "He", 
+    email = "hex@wustl.edu",
+    role = "aut")
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: Comprehensive estimation and inference methods for conditional expected shortfall 
+        regression under a variety of settings, based on the two-step regression framework developed in 
+        <doi:10.1093/jjfinec/nbag003>. The package covers linear expected shortfall regression, 
+        high-dimensional expected shortfall regression 
+        (<doi:10.1080/01621459.2024.2448860>), 
+        robust expected shortfall regression for heavy-tailed responses 
+        (<doi:10.1093/jrsssb/qkad063>), 
+        and autoregressive expected shortfall models for dynamic time series.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
@@ -26,4 +44,4 @@ Imports:
 LinkingTo:
     Rcpp,
     RcppArmadillo
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.1.0
