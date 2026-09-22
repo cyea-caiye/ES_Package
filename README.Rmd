@@ -13,16 +13,16 @@ knitr::opts_chunk$set(
 )
 ```
 
-# esTools
+# estools
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of esTools is to ...
+The goal of estools is to ...
 
 ## Installation
 
-You can install the development version of esTools from [GitHub](https://github.com/) with:
+You can install the development version of estools from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
@@ -34,7 +34,7 @@ pak::pak("cyea-caiye/ES_Package")
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(esTools)
+library(estools)
 ## basic example code
 ```
 

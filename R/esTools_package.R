@@ -1,9 +1,9 @@
-#' esTools: Expected Shortfall Regression
+#' estools: Expected Shortfall Regression
 #'
 #' Tools for fitting expected shortfall regression models,
 #' including estimation and inference procedures.
 #'
-#' @useDynLib esTools, .registration = TRUE
+#' @useDynLib estools, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #'
 #' @keywords internal

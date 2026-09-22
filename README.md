@@ -1,17 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# esTools
+# estools
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-The goal of esTools is to …
+The goal of estools is to …
 
 ## Installation
 
-You can install the development version of esTools from
+You can install the development version of estools from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -24,7 +24,7 @@ pak::pak("cyea-caiye/ES_Package")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(esTools)
+library(estools)
 ## basic example code
 ```
 

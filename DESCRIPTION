@@ -1,4 +1,4 @@
-Package: esTools
+Package: estools
 Type: Package
 Title: A Comprehensive Toolkit for Two-Step Expected Shortfall Regression
 Version: 0.1.0
