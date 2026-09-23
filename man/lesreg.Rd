@@ -14,40 +14,41 @@ lesreg(formula, tau = 0.05, data, subset, weights, na.action,
 \method{print}{lesreg}(x, ...)
 }
 \arguments{
-\item{formula}{an object of class \code{"formula"}: a symbolic description
-of the model to be fitted. The details of model specification are given
-under \code{Details}.}
+\item{formula}{an object of class \code{"formula"} specifying the model to
+be fitted. Details of the model specification are given in
+\code{Details}.}
 
-\item{tau}{the quantile level of the corresponding ES
- to be estimated. This is a single number strictly
- between 0 and 1. If \code{upperTail = FALSE}, the function fits the
- lower-tail ES defined by quantile level \code{tau}.
-If \code{upperTail = TRUE}, the function fits the upper-tail ES defined by
-the quantile level \code{1-tau}. See discussions in \code{Details}.}
+\item{tau}{the quantile level associated with the ES to be estimated. This
+must be a single number strictly between 0 and 1. If
+\code{upperTail = FALSE}, the function fits the lower-tail ES associated
+with quantile level \code{tau}. If \code{upperTail = TRUE}, the function
+fits the upper-tail ES associated with quantile level \code{1 - tau}.
+See \code{Details}.}
 
-\item{data}{an optional data frame, list or environment containing the
-variables in the model. If not found in \code{data}, the variables are
+\item{data}{an optional data frame, list, or environment containing the
+variables in the model. If a variable is not found in \code{data}, it is
 taken from \code{environment(formula)}.}
 
 \item{subset}{an optional vector specifying a subset of observations to be
-used in the fitting process.}
+used in fitting.}
 
-\item{weights}{an optional vector of observation weights to be used in the
-fitting process. The weights must be positive. If supplied, weighted
-quantile regression and weighted least squares are used in the two-step regression scheme.}
+\item{weights}{an optional vector of observation weights to be used in
+fitting. The weights must be positive. If supplied, weighted quantile
+regression and weighted least squares are used in the two-step
+estimation procedure.}
 
-\item{na.action}{a function which indicates what should happen when the data
-contain \code{NA}s. The default is set by the \code{na.action} setting of
-\code{\link{options}}.}
+\item{na.action}{a function specifying the action to be taken when the data
+contain \code{NA}s. The default is determined by the \code{na.action}
+setting of \code{\link{options}}.}
 
-\item{method}{the method to be used for the first-step quantile regression.
-This is passed to \code{\link[quantreg]{rq.fit}} or
+\item{method}{the method used for the first-step quantile regression. This
+is passed to \code{\link[quantreg]{rq.fit}} or
 \code{\link[quantreg]{rq.wfit}}. If \code{method = "model.frame"}, the
-model frame is returned.}
+model frame is returned without fitting the model.}
 
-\item{model, x, y, qr}{logicals. If \code{TRUE}, the corresponding components
-of the fit, the model frame, the model matrix, the response, and the QR
-decomposition, are returned.}
+\item{model, x, y, qr}{logicals indicating whether the model frame, model
+matrix, response, and QR decomposition, respectively, should be returned
+as components of the fitted object.}
 
 \item{contrasts}{an optional list. See the \code{contrasts.arg} argument of
 \code{\link{model.matrix.default}}.}
@@ -55,37 +56,37 @@ decomposition, are returned.}
 \item{eps}{a non-negative numerical tolerance used when constructing the
 tail indicator.}
 
-\item{lm.tol}{tolerance passed to \code{\link[stats]{lm.fit}} or
+\item{lm.tol}{numerical tolerance passed to \code{\link[stats]{lm.fit}} or
 \code{\link[stats]{lm.wfit}} in the second-step least-squares fit.}
 
 \item{singular.ok}{logical. If \code{FALSE}, a singular fit in the
-second-step least-squares regression is an error.}
+second-step least-squares regression results in an error.}
 
-\item{upperTail}{logical. If \code{FALSE}, the lower-tail ES
-is estimated. If \code{TRUE}, the upper-tail ES is
-estimated.}
+\item{upperTail}{logical. If \code{FALSE}, the lower-tail ES is estimated.
+If \code{TRUE}, the upper-tail ES is estimated.}
 
-\item{...}{additional arguments to be passed to the low-level fitting
-functions, and ultimately to \code{\link[quantreg]{rq.fit}} or
+\item{...}{additional arguments passed to the low-level fitting functions
+and ultimately to \code{\link[quantreg]{rq.fit}} or
 \code{\link[quantreg]{rq.wfit}}.}
 }
 \value{
 \code{lesreg} returns an object of class \code{"lesreg"}.
 The functions \code{\link{summary.lesreg}} and \code{\link{print.lesreg}}
-are used to obtain and print summaries of the results. The generic accessor
-functions \code{\link{coef}}, \code{\link{fitted}} and
-\code{\link{residuals}} can be used to extract useful features of the
-fitted object.
+can be used to summarize and print the fitted model. The generic accessor
+functions \code{\link{coef}}, \code{\link{fitted}}, and
+\code{\link{residuals}} can be used to extract components of the fitted
+model.
 
 An object of class \code{"lesreg"} is a list containing at least the
 following components:
 \describe{
   \item{\code{coefficients}}{a named vector of expected shortfall regression
   coefficients.}
-  \item{\code{beta.hat}}{a named vector of coefficients from the first-step
-  quantile regression.}
-  \item{\code{residuals}}{the residuals from the second-step regression, that is
-  the pseudo-response minus fitted expected shortfall values.}
+  \item{\code{beta.hat}}{a named vector of linear quantile regression
+  coefficients from the first-step quantile regression.}
+  \item{\code{residuals}}{the residuals from the second-step least-squares
+  regression, defined as the pseudo-response minus the fitted expected
+  shortfall values.}
   \item{\code{fitted.values}}{the fitted expected shortfall values.}
   \item{\code{quantile.residuals}}{the residuals from the first-step quantile
   regression.}
@@ -93,62 +94,69 @@ following components:
   \item{\code{es.fitted}}{the fitted conditional expected shortfall values.}
   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
   least-squares regression.}
-  \item{\code{response.residuals}}{the response minus fitted expected shortfall
-  values.}
-  \item{\code{indicator}}{the tail indicator used to construct the
-  pseudo-response.}
+  \item{\code{response.residuals}}{the observed response minus the fitted
+  expected shortfall values.}
+  \item{\code{indicator}}{the vector of ``hitting indicators" that compute
+   \eqn{\mathbf{1}(Y_i \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}
+   when \code{upperTail = FALSE}, and
+   \eqn{\mathbf{1}(Y_i \geq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}}
+   when \code{upperTail = TRUE}.
   \item{\code{rank}}{the numeric rank of the fitted second-step linear model.}
-  \item{\code{weights}}{the specified weights, or \code{NULL} for unweighted fits.}
+  \item{\code{weights}}{the specified weights, or \code{NULL} for an
+  unweighted fit.}
   \item{\code{df.residual}}{the residual degrees of freedom.}
-  \item{\code{call}}{the call that produced this object.}
-  \item{\code{terms}}{the \code{\link{terms}} object used.}
-  \item{\code{contrasts}}{only where relevant, the contrasts used.}
-  \item{\code{xlevels}}{only where relevant, a record of the levels of the factors
-  used in fitting.}
-  \item{\code{method}}{the method used for the first-step quantile regression.}
+  \item{\code{call}}{the call that produced the fitted object.}
+  \item{\code{terms}}{the \code{\link{terms}} object used in fitting.}
+  \item{\code{contrasts}}{where relevant, the contrasts used in fitting.}
+  \item{\code{xlevels}}{where relevant, a record of the levels of the
+  factors used in fitting.}
+  \item{\code{method}}{the method used for the first-step quantile
+  regression.}
   \item{\code{tau}}{the tail probability used for estimation.}
-  \item{\code{tail}}{a character string indicating whether the lower or upper tail
-  was fitted.}
+  \item{\code{tail}}{a character string indicating whether the lower or
+  upper tail was fitted.}
   \item{\code{eps}}{the numerical tolerance used in constructing the tail
   indicator.}
-  \item{\code{lm.tol}}{the tolerance used in the second-step least-squares fit.}
-  \item{\code{singular.ok}}{the value of \code{singular.ok} used in fitting.}
+  \item{\code{lm.tol}}{the tolerance used in the second-step least-squares
+  fit.}
+  \item{\code{singular.ok}}{the value of \code{singular.ok} used in
+  fitting.}
   \item{\code{qr}}{if requested, the QR decomposition from the second-step
   least-squares fit.}
-  \item{\code{y}}{if requested, the response used.}
-  \item{\code{x}}{if requested, the model matrix used.}
-  \item{\code{model}}{if requested, the model frame used.}
+  \item{\code{y}}{if requested, the response used in fitting.}
+  \item{\code{x}}{if requested, the model matrix used in fitting.}
+  \item{\code{model}}{if requested, the model frame used in fitting.}
   \item{\code{na.action}}{where relevant, information returned by
-  \code{\link{model.frame}} on the special handling of \code{NA}s.}
-  \item{\code{quantile.fit}}{the raw first-step quantile regression fit.}
-  \item{\code{es.fit}}{the raw second-step least-squares fit.}
+  \code{\link{model.frame}} on the handling of \code{NA}s.}
 }
 
-In addition, fitted objects contain \code{x.fit} and \code{y.fit}, the model
-matrix and response actually used by the low-level fitting routine.
+In addition, fitted objects contain \code{x.fit} and \code{y.fit}, the
+model matrix and response actually used by the low-level fitting routine.
 }
 \description{
-Fit linear expected shortfall (ES) regression models under
-the low-dimensional regime via the two-step regression approach.
-It also computes the associated linear quantile regression fit used in the
-first step of estimation.
+Fits a linear expected shortfall (ES) regression model in the
+low-dimensional setting using the two-step regression approach of
+Barendse (2026). The function also fits the corresponding linear quantile
+regression model (Koenker and Bassett, 1978), which is used in the first
+step of estimation.
 }
 \details{
-Formulas for \code{lesreg} are specified symbolically. A typical \code{formula} has the
-form \code{response ~ terms}, where \code{response} is the numeric response
-vector and \code{terms} is a series of covariates that specify the
-linear predictors for the conditional quantile and expected shortfall functions.
-A formula has an implied intercept term. To remove this use either
-\code{y ~ x - 1} or \code{y ~ 0 + x}. See \code{\link{formula}} for more
-details of allowed formulae.
-All of \code{weights}, \code{subset} and \code{na.action} are evaluated in
-the same way as variables in \code{formula}, that is first in \code{data}
-and then in the environment of \code{formula}.
+Models for \code{lesreg} are specified symbolically. A typical
+\code{formula} has the form \code{response ~ terms}, where \code{response}
+is the numeric response vector and \code{terms} specifies the covariates
+used in the linear predictors for the conditional quantile and expected
+shortfall. By default, the formula includes an intercept. The intercept can
+be removed using either \code{y ~ x - 1} or \code{y ~ 0 + x}. See
+\code{\link{formula}} for further details on formula specification.
+
+The arguments \code{weights}, \code{subset}, and \code{na.action} are
+evaluated in the same way as variables in \code{formula}: first in
+\code{data} and then in the environment of \code{formula}.
 
 Let \eqn{Y \in \mathbb{R}} and \eqn{\boldsymbol{X}\in \mathbb{R}^{p}} denote the scalar-valued
 response variable and \eqn{p}-dimensional covariate vector, respectively. For a given
-quantile level \eqn{\tau \in (0,1)}, this function considers two scenarios that learn the lower
-and upper-tail conditional ES of \eqn{Y}, respectively.
+quantile level \eqn{\tau \in (0,1)}, this function considers two scenarios for modeling the
+lower- and upper-tail conditional ES of \eqn{Y}, respectively.
 If \code{upperTail = FALSE}, the fitted joint quantile-ES model is
 \deqn{
 Q_\tau(Y \mid \boldsymbol{X}) = \boldsymbol{X}^{\intercal}\boldsymbol{\beta}^*,~~\mathrm{and~~}
@@ -161,49 +169,80 @@ Q_{1 - \tau}(Y \mid \boldsymbol{X}) = \boldsymbol{X}^{\intercal}\boldsymbol{\bet
  \mathrm{ES}^{\mathrm{U}}_\tau(Y \mid \boldsymbol{X})
  =\mathbb{E}\{Y \mid \boldsymbol{X}, Y \geq Q_{1-\tau}(Y \mid \boldsymbol{X})\}
  =\boldsymbol{X}^{\intercal}\boldsymbol{\theta}^*.}
-In both cases, \eqn{\boldsymbol{\theta}^{*}}
-is the target parameter of interest while \eqn{\boldsymbol{\beta}^*}
-is the nuisance parameter.
+In both cases, \eqn{\boldsymbol{\theta}^{*}} is the target ES regression
+parameter, whereas \eqn{\boldsymbol{\beta}^*} is the quantile regression
+nuisance parameter estimated in the first step.
 
-
-\code{lesreg} calls the lower level functions \code{\link{lesreg.fit}} for
-unweighted fitting and \code{\link{lesreg.wfit}} for weighted fitting. For
-programming only, these functions may be called directly.
+\code{lesreg} calls the lower-level function \code{\link{lesreg.fit}} for
+unweighted fitting and \code{\link{lesreg.wfit}} for weighted fitting.
+These functions may also be called directly for programming purposes.
 }
 \section{Method}{
 
-The function computes a two-step estimate. First, a linear quantile
-regression is fitted at level \code{tau}. Let \eqn{\hat q} denote the fitted
-conditional quantile. The pseudo-response
-\deqn{
-w = \hat q + \tau^{-1} 1(y \leq \hat q + \epsilon)(y-\hat q)
-}
-is then regressed on the same model matrix by least squares. The resulting
-coefficients estimate the linear expected shortfall function.
+The function fits the low-dimensional linear ES model using the two-step
+estimation procedure proposed by Barendse (2026). For clarity, the
+equations below describe the unweighted procedure. When \code{weights} are
+supplied, the corresponding weighted quantile regression and weighted
+least-squares objectives are used.
 
-For upper-tail fitting, the lower-tail procedure is applied internally to
-the transformed response and model matrix. Fitted values are returned on the
-original response scale.
+For a dataset with \eqn{n} observations, if \code{upperTail = FALSE}, the
+first step estimates the \eqn{\tau}-level conditional quantile of the
+response using quantile regression:
+\deqn{
+\hat{\boldsymbol{\beta}} = \mathrm{argmin}_{\boldsymbol{\beta}}\frac{1}{n}\sum_{i = 1}^n
+\rho_\tau(Y_i - \boldsymbol{X}_i^{\intercal}\boldsymbol{\beta}).}
+This step is implemented using \code{\link[quantreg]{rq.fit}} or
+\code{\link[quantreg]{rq.wfit}}.
+
+In the second step, pseudo-response variables are first constructed as
+\deqn{
+\hat{W}_i = \frac{1}{\tau}\mathbf{1}(Y \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})
+(Y - \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta }})
++ \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}}.
+}
+The ES regression coefficients are then estimated by least squares:
+\deqn{
+\hat{\boldsymbol{\theta}} = \mathrm{argmin}_{\theta}\frac{1}{n}\sum_{i = 1}^n (\hat{W}_i -
+\boldsymbol{X}_i^{\intercal}\boldsymbol{\theta})^2,
+}
+implemented using either \code{\link[stats]{lm.fit}} or
+\code{\link[stats]{lm.wfit}}.
+
+When \code{upperTail = TRUE}, the lower-tail procedure is applied
+internally to the transformed response and model matrix, using the
+observation that \eqn{Q_\tau(Y) = -Q_{1-\tau}(-Y)}. Fitted values are
+returned on the original response scale.
 }
 
 \examples{
-set.seed(2026)
-n <- 200
-x1 <- rnorm(n)
-x2 <- rnorm(n)
+set.seed(66)
+n <- 500
+x1 <- stats::rnorm(n)
+x2 <- stats::rnorm(n)
 y <- 1 + 2 * x1 - x2 + rnorm(n)
+tau <- 0.05
+theta.true.lower <- c(1 +
+      stats::integrate(stats::qnorm, lower = 0, upper = tau)$value/tau, 2, -1)
+theta.true.upper <- c(1 +
+      stats::integrate(stats::qnorm, lower = 1-tau, upper = 1)$value/tau, 2, -1 )
 dat <- data.frame(y = y, x1 = x1, x2 = x2)
-fit <- lesreg(y ~ x1 + x2, data = dat, tau = 0.05)
-fit
-summary(fit)
-fit.upper <- lesreg(y ~ x1 + x2, data = dat, tau = 0.05, upperTail = TRUE)
-fit.upper
-w <- stats::rexp(n)
-fit.w <- lesreg(y ~ x1 + x2, data = dat, tau = 0.05, weights = w)
-fit.w
-mf <- lesreg(y ~ x1 + x2, data = dat, method = "model.frame")
-head(mf)
 
+## Fit linear ES regression for lower tail
+fit <- lesreg(y ~ x1 + x2, data = dat, tau = tau)
+theta.hat.lower <- stats::coef(fit)
+fit
+
+## Fit linear ES regression for upper tail
+fit.upper <- lesreg(y ~ x1 + x2, data = dat, tau = tau, upperTail = TRUE)
+theta.hat.upper <- stats::coef(fit.upper)
+fit.upper
+
+## Compare the estimated ES coefficients
+print(rbind(theta.true.lower, theta.hat.lower, theta.true.upper, theta.hat.upper))
+
+## Construct the confidence intervals for lower tail ES and upper tail ES
+summary(fit)
+summary(fit.upper)
 }
 \references{
 Barendse, S. (2026).
@@ -218,12 +257,12 @@ Regression quantiles.
 \code{\link{summary.lesreg}}, \code{\link{lesreg.fit}},
 \code{\link{lesreg.wfit}}
 
-\code{\link[quantreg]{rq}}, \code{\link[quantreg]{rq.fit}} and
+\code{\link[quantreg]{rq}}, \code{\link[quantreg]{rq.fit}}, and
 \code{\link[quantreg]{rq.wfit}} for quantile regression.
 
-\code{\link[stats]{lm}}, \code{\link[stats]{lm.fit}} and
+\code{\link[stats]{lm}}, \code{\link[stats]{lm.fit}}, and
 \code{\link[stats]{lm.wfit}} for least-squares regression.
 
-The generic functions \code{\link{coef}}, \code{\link{fitted}} and
+The generic functions \code{\link{coef}}, \code{\link{fitted}}, and
 \code{\link{residuals}}.
 }
