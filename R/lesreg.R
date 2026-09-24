@@ -117,7 +117,7 @@
 #' }
 #' The ES regression coefficients are then estimated by least squares:
 #' \deqn{
-#' \hat{\boldsymbol{\theta}} = \mathrm{argmin}_{\theta}\frac{1}{n}\sum_{i = 1}^n (\hat{W}_i -
+#' \hat{\boldsymbol{\theta}} = \mathrm{argmin}_{\boldsymbol{\theta}}\frac{1}{n}\sum_{i = 1}^n (\hat{W}_i -
 #' \boldsymbol{X}_i^{\intercal}\boldsymbol{\theta})^2,
 #' }
 #' implemented using either \code{\link[stats]{lm.fit}} or
