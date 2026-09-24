@@ -9,7 +9,7 @@ lesreg.fit(x, y, tau = 0.05, method = "br",
            lm.tol = 1e-7, singular.ok = TRUE, ...)
 }
 \arguments{
-\item{x}{numeric design matrix of dimension \eqn{n * p}.}
+\item{x}{numeric design matrix of dimension \eqn{n \times p}.}
 
 \item{y}{numeric response vector of length \eqn{n}, or a one-column numeric
 matrix.}
@@ -128,12 +128,12 @@ theta.true.upper <- c(1 +
 
 ## Fit linear ES regression for lower tail
 fit <- lesreg.fit(x, y, tau = tau)
-fit$theta.hat
+fit$coefficients
 theta.true.lower
 
 ## Fit linear ES regression for upper tail
 fit.upper <- lesreg.fit(x, y, tau = tau, upperTail = TRUE)
-fit.upper$theta.hat
+fit.upper$coefficients
 theta.true.upper
 }
 \seealso{

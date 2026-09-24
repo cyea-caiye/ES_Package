@@ -14,7 +14,7 @@
 #'            upperTail = FALSE, eps = 1e-10,
 #'            lm.tol = 1e-7, singular.ok = TRUE, ...)
 #'
-#' @param x numeric design matrix of dimension \eqn{n * p}.
+#' @param x numeric design matrix of dimension \eqn{n \times p}.
 #' @param y numeric response vector of length \eqn{n}, or a one-column numeric
 #'   matrix.
 #' @param tau the quantile level associated with the ES to be estimated. This
@@ -123,12 +123,12 @@
 #'
 #' ## Fit linear ES regression for lower tail
 #' fit <- lesreg.fit(x, y, tau = tau)
-#' fit$theta.hat
+#' fit$coefficients
 #' theta.true.lower
 #'
 #' ## Fit linear ES regression for upper tail
 #' fit.upper <- lesreg.fit(x, y, tau = tau, upperTail = TRUE)
-#' fit.upper$theta.hat
+#' fit.upper$coefficients
 #' theta.true.upper
 #' @export
 
