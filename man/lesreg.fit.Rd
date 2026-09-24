@@ -46,8 +46,6 @@ A list containing at least the following components:
   coefficients.}
   \item{\code{beta.hat}}{a named vector of linear quantile regression
   coefficients from the first-step quantile regression.}
-  \item{\code{theta.hat}}{a named vector of expected shortfall regression
-  coefficients from the second-step least-squares regression.}
   \item{\code{x.fit}}{the design matrix used by the low-level fitting
   routine.}
   \item{\code{y.fit}}{the response used by the low-level fitting routine.}
@@ -61,9 +59,6 @@ A list containing at least the following components:
   \item{\code{es.fitted}}{the fitted conditional expected shortfall values.}
   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
   least-squares regression.}
-  \item{\code{pseudo.residuals}}{the residuals from the second-step
-  least-squares regression, defined as the pseudo-response minus the fitted
-  expected shortfall values.}
   \item{\code{response.residuals}}{the observed response minus the fitted
   expected shortfall values.}
   \item{\code{indicator}}{the vector of ``hitting indicators" that compute
@@ -76,10 +71,6 @@ A list containing at least the following components:
   \item{\code{assign}}{the assignment attribute of the design matrix.}
   \item{\code{qr}}{the QR decomposition from the second-step
   least-squares fit.}
-  \item{\code{quantile.fit}}{the fitted object returned by the first-step
-  \code{\link[quantreg]{rq.fit}} call.}
-  \item{\code{es.fit}}{the fitted object returned by the second-step
-  \code{\link[stats]{lm.fit}} call.}
   \item{\code{tail}}{a character string indicating whether the lower or
   upper tail was fitted.}
   \item{\code{contrasts}}{the contrasts attribute of the design matrix, if
@@ -108,7 +99,7 @@ used to construct the pseudo-response
 \deqn{
 \hat{W}_i = \frac{1}{\tau}\mathbf{1}(Y \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})
 (Y - \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta }})
-+ \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}}.
++ \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}},
 }
 which is regressed on the same design matrix using
 \code{\link[stats]{lm.fit}} to obtain the ES regression estimator.
@@ -124,16 +115,26 @@ without calling the first-step or second-step fitting routines.
 }
 \examples{
 set.seed(2026)
-n <- 200
+n <- 500
 x1 <- rnorm(n)
 x2 <- rnorm(n)
+tau <- 0.05
 y <- 1 + 2 * x1 - x2 + rnorm(n)
 x <- model.matrix(~ x1 + x2)
-fit <- lesreg.fit(x, y, tau = 0.05)
-fit$theta.hat
-fit.upper <- lesreg.fit(x, y, tau = 0.05, upperTail = TRUE)
-fit.upper$theta.hat
+theta.true.lower <- c(1 +
+    stats::integrate(stats::qnorm, lower = 0, upper = tau)$value/tau, 2, -1)
+theta.true.upper <- c(1 +
+    stats::integrate(stats::qnorm, lower = 1-tau, upper = 1)$value/tau, 2, -1 )
 
+## Fit linear ES regression for lower tail
+fit <- lesreg.fit(x, y, tau = tau)
+fit$theta.hat
+theta.true.lower
+
+## Fit linear ES regression for upper tail
+fit.upper <- lesreg.fit(x, y, tau = tau, upperTail = TRUE)
+fit.upper$theta.hat
+theta.true.upper
 }
 \seealso{
 \code{\link{lesreg}} for the user-level interface and a detailed
