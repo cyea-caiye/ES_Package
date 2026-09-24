@@ -2,78 +2,78 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 AS_ES <- function(THETA, y, empiricalES, ES, RowsOfy, esPredict) {
-    .Call(`_mypkg_AS_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
+    .Call(`_estools_AS_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
 }
 
 caviar_AS <- function(BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict) {
-    .Call(`_mypkg_caviar_AS`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
+    .Call(`_estools_caviar_AS`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
 }
 
 AS12_ES <- function(THETA, y, empiricalES, ES, RowsOfy, esPredict) {
-    .Call(`_mypkg_AS12_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
+    .Call(`_estools_AS12_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
 }
 
 caviar_AS12 <- function(BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict) {
-    .Call(`_mypkg_caviar_AS12`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
+    .Call(`_estools_caviar_AS12`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
 }
 
 GARCH_ES <- function(THETA, y, empiricalES, ES, RowsOfy, esPredict) {
-    .Call(`_mypkg_GARCH_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
+    .Call(`_estools_GARCH_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
 }
 
 caviar_GARCH <- function(BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict) {
-    .Call(`_mypkg_caviar_GARCH`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
+    .Call(`_estools_caviar_GARCH`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
 }
 
 SAV_ES <- function(THETA, y, empiricalES, ES, RowsOfy, esPredict) {
-    .Call(`_mypkg_SAV_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
+    .Call(`_estools_SAV_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
 }
 
 caviar_SAV <- function(BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict) {
-    .Call(`_mypkg_caviar_SAV`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
+    .Call(`_estools_caviar_SAV`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
 }
 
 SAV12_ES <- function(THETA, y, empiricalES, ES, RowsOfy, esPredict) {
-    .Call(`_mypkg_SAV12_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
+    .Call(`_estools_SAV12_ES`, THETA, y, empiricalES, ES, RowsOfy, esPredict)
 }
 
 caviar_SAV12 <- function(BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict) {
-    .Call(`_mypkg_caviar_SAV12`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
+    .Call(`_estools_caviar_SAV12`, BETA, y, empiricalQuantile, VaR, RowsOfy, varPredict)
 }
 
 sgn <- function(x) {
-    .Call(`_mypkg_sgn`, x)
+    .Call(`_estools_sgn`, x)
 }
 
 f1 <- function(x, resSq, n, rhs) {
-    .Call(`_mypkg_f1`, x, resSq, n, rhs)
+    .Call(`_estools_f1`, x, resSq, n, rhs)
 }
 
 rootf1 <- function(resSq, n, rhs, low, up, tol = 0.001, maxIte = 500L) {
-    .Call(`_mypkg_rootf1`, resSq, n, rhs, low, up, tol, maxIte)
+    .Call(`_estools_rootf1`, resSq, n, rhs, low, up, tol, maxIte)
 }
 
 huberDer <- function(res, tau, n) {
-    .Call(`_mypkg_huberDer`, res, tau, n)
+    .Call(`_estools_huberDer`, res, tau, n)
 }
 
 huberMean <- function(X, n, tol = 0.0001, iteMax = 500L) {
-    .Call(`_mypkg_huberMean`, X, n, tol, iteMax)
+    .Call(`_estools_huberMean`, X, n, tol, iteMax)
 }
 
 mad <- function(x) {
-    .Call(`_mypkg_mad`, x)
+    .Call(`_estools_mad`, x)
 }
 
 standardize <- function(X, mx, sx1, p) {
-    .Call(`_mypkg_standardize`, X, mx, sx1, p)
+    .Call(`_estools_standardize`, X, mx, sx1, p)
 }
 
 updateHuber <- function(Z, res, der, grad, n, tau, n1) {
-    invisible(.Call(`_mypkg_updateHuber`, Z, res, der, grad, n, tau, n1))
+    invisible(.Call(`_estools_updateHuber`, Z, res, der, grad, n, tau, n1))
 }
 
 adaHuberReg <- function(X, Y, epsilon = 0.0001, iteMax = 500L) {
-    .Call(`_mypkg_adaHuberReg`, X, Y, epsilon, iteMax)
+    .Call(`_estools_adaHuberReg`, X, Y, epsilon, iteMax)
 }
 
