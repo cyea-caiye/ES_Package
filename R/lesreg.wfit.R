@@ -1,104 +1,135 @@
-#' Weighted Fitter Function for Linear Expected Shortfall Regression
+#' Low-Level Weighted Fitter for Linear Expected Shortfall Regression
 #'
 #' @description
-#' This is the basic computing engine called by \code{\link{lesreg}} for
-#' weighted linear expected shortfall regression. It works directly with a
-#' numeric design matrix, response vector, and observation weights.
+#' Low-level fitting function for weighted linear expected shortfall (ES)
+#' regression using the two-step regression approach implemented by
+#' \code{\link{lesreg}}. The function works directly with a numeric design
+#' matrix, response vector, and observation weights.
 #'
-#' For formula processing, missing-value handling, subsets, and factor
-#' variables, use \code{\link{lesreg}}.
+#' For formula-based model specification, data handling, subsets,
+#' missing-value handling, and factor variables, use \code{\link{lesreg}}.
 #'
 #' @usage
 #' lesreg.wfit(x, y, weights = NULL, tau = 0.05, method = "br",
 #'             upperTail = FALSE, eps = 1e-10,
 #'             lm.tol = 1e-7, singular.ok = TRUE, ...)
 #'
-#' @param x design matrix of dimension \eqn{n * p}.
-#' @param y vector of observations of length \eqn{n}, or a one-column matrix.
-#' @param weights vector of positive weights of length \eqn{n} to be used in
-#'   the fitting process. If \code{NULL}, unit weights are used.
-#' @param tau the tail probability to be used. It must be a single number
-#'   strictly between 0 and 1.
-#' @param method method of computation for the first-step weighted quantile
-#'   regression; passed to \code{\link[quantreg]{rq.wfit}}.
-#' @param upperTail logical. If \code{FALSE}, the lower tail is fitted. If
-#'   \code{TRUE}, the upper tail is fitted.
-#' @param eps non-negative numerical tolerance used in constructing the tail
-#'   indicator.
-#' @param lm.tol tolerance passed to \code{\link[stats]{lm.wfit}} in the
-#'   second-step weighted least-squares fit.
-#' @param singular.ok logical. If \code{FALSE}, a singular second-step fit is
-#'   an error.
-#' @param ... optional arguments passed to \code{\link[quantreg]{rq.wfit}}.
+#' @param x numeric design matrix of dimension \eqn{n \times p}.
+#' @param y numeric response vector of length \eqn{n}, or a one-column numeric
+#'   matrix.
+#' @param weights a vector of positive observation weights of length \eqn{n}
+#'   to be used in fitting. If \code{NULL}, unit weights are used.
+#' @param tau the quantile level associated with the ES to be estimated. This
+#'   must be a single number strictly between 0 and 1. If
+#'   \code{upperTail = FALSE}, the function fits the lower-tail ES associated
+#'   with quantile level \code{tau}. If \code{upperTail = TRUE}, the function
+#'   fits the upper-tail ES associated with quantile level \code{1 - tau}.
+#'   See \code{\link{lesreg}} for details.
+#' @param method the method used for the first-step quantile regression. This
+#'   is passed to \code{\link[quantreg]{rq.wfit}}.
+#' @param upperTail logical. If \code{FALSE}, the lower-tail ES is estimated.
+#'   If \code{TRUE}, the upper-tail ES is estimated.
+#' @param eps a non-negative numerical tolerance used when constructing the
+#'   tail indicator.
+#' @param lm.tol numerical tolerance passed to \code{\link[stats]{lm.wfit}} in
+#'   the second-step weighted least-squares fit.
+#' @param singular.ok logical. If \code{FALSE}, a singular fit in the
+#'   second-step weighted least-squares regression results in an error.
+#' @param ... additional arguments passed to
+#'   \code{\link[quantreg]{rq.wfit}}.
 #'
 #' @details
-#' The function computes a two-step weighted fit. First, a weighted linear
-#' quantile regression is fitted by \code{\link[quantreg]{rq.wfit}}. The fitted
-#' quantile is then used to form the pseudo-response
-#' \deqn{
-#' w = \hat q + \tau^{-1} 1(y \leq \hat q + \epsilon)(y-\hat q),
-#' }
-#' which is regressed on the same design matrix by
-#' \code{\link[stats]{lm.wfit}} using the same weights.
+#' \code{lesreg.wfit} is the low-level weighted fitting function used by
+#' \code{\link{lesreg}}. It does not perform formula processing or construct a
+#' model frame and therefore requires the design matrix and response to be
+#' supplied directly.
 #'
-#' If \code{upperTail = TRUE}, the same lower-tail computation is applied to
-#' the transformed data \eqn{-y} and \eqn{-x}. Fitted values are returned on the
-#' original response scale.
+#' The function implements the weighted version of the two-step estimation
+#' procedure described in \code{\link{lesreg}} and \code{\link{lesreg.fit}}.
+#' In the first step, a weighted linear quantile regression is fitted using
+#' \code{\link[quantreg]{rq.wfit}}. In the second step, the pseudo-response
+#' constructed from the fitted conditional quantile is regressed on the same
+#' design matrix using weighted least squares through
+#' \code{\link[stats]{lm.wfit}}.
 #'
-#' Fits without any columns return empty coefficient vectors and do not call
-#' the first-step or second-step fitting routines.
+#' If \code{upperTail = TRUE}, the lower-tail procedure is applied internally
+#' to the transformed response and design matrix. Fitted values are returned
+#' on the original response scale. See \code{\link{lesreg}} for the
+#' statistical formulation of the lower- and upper-tail ES regression models.
+#'
+#' If \code{x} has no columns, the function returns empty coefficient vectors
+#' without calling the first-step or second-step fitting routines.
 #'
 #' @return
-#' a list with components
+#' A list containing at least the following components:
 #' \describe{
-#'   \item{coefficients}{\eqn{p} vector of expected shortfall regression coefficients.}
-#'   \item{beta.hat}{\eqn{p} vector of first-step weighted quantile regression coefficients.}
-#'   \item{theta.hat}{\eqn{p} vector of second-step weighted expected shortfall
-#'   regression coefficients.}
-#'   \item{x.fit}{design matrix used in fitting.}
-#'   \item{y.fit}{response used in fitting.}
-#'   \item{residuals}{\eqn{n} vector of second-step residuals.}
-#'   \item{fitted.values}{\eqn{n} vector of fitted expected shortfall values.}
-#'   \item{quantile.residuals}{\eqn{n} vector of first-step quantile residuals.}
-#'   \item{quantile.fitted}{\eqn{n} vector of fitted quantile values.}
-#'   \item{es.fitted}{\eqn{n} vector of fitted expected shortfall values.}
-#'   \item{pseudo.response}{\eqn{n} vector used as the response in the
-#'   second-step weighted least-squares fit.}
-#'   \item{pseudo.residuals}{\eqn{n} vector of residuals from the second-step fit.}
-#'   \item{response.residuals}{\eqn{n} vector of response residuals.}
-#'   \item{indicator}{\eqn{n} vector indicating the observations used in the tail.}
-#'   \item{weights}{\eqn{n} vector of weights used in fitting.}
-#'   \item{rank}{integer, giving the rank of the second-step design matrix.}
-#'   \item{df.residual}{degrees of freedom of residuals.}
-#'   \item{assign}{the assignment attribute of the design matrix.}
-#'   \item{qr}{the QR decomposition from the second-step fit.}
-#'   \item{quantile.fit}{the object returned by the first-step
-#'   \code{\link[quantreg]{rq.wfit}} call.}
-#'   \item{es.fit}{the object returned by the second-step
-#'   \code{\link[stats]{lm.wfit}} call.}
-#'   \item{tail}{character string, either \code{"lower"} or \code{"upper"}.}
-#'   \item{contrasts}{the contrasts attribute of the design matrix, if any.}
+#'   \item{\code{coefficients}}{a named vector of expected shortfall regression
+#'   coefficients.}
+#'   \item{\code{beta.hat}}{a named vector of linear quantile regression
+#'   coefficients from the first-step quantile regression.}
+#'   \item{\code{x.fit}}{the design matrix used by the low-level fitting
+#'   routine.}
+#'   \item{\code{y.fit}}{the response used by the low-level fitting routine.}
+#'   \item{\code{residuals}}{the residuals from the second-step weighted
+#'   least-squares regression, defined as the pseudo-response minus the fitted
+#'   expected shortfall values.}
+#'   \item{\code{fitted.values}}{the fitted expected shortfall values.}
+#'   \item{\code{quantile.residuals}}{the residuals from the first-step quantile
+#'   regression.}
+#'   \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
+#'   \item{\code{es.fitted}}{the fitted conditional expected shortfall values.}
+#'   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
+#'   weighted least-squares regression.}
+#'   \item{\code{response.residuals}}{the observed response minus the fitted
+#'   expected shortfall values.}
+#'   \item{\code{indicator}}{the vector of ``hitting indicators" that compute
+#'   \eqn{\mathbf{1}(Y_i \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}
+#'   when \code{upperTail = FALSE}, and
+#'   \eqn{\mathbf{1}(Y_i \geq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}
+#'   when \code{upperTail = TRUE}.}
+#'   \item{\code{weights}}{the vector of weights used in fitting.}
+#'   \item{\code{rank}}{the numeric rank of the fitted second-step linear model.}
+#'   \item{\code{df.residual}}{the residual degrees of freedom.}
+#'   \item{\code{assign}}{the assignment attribute of the design matrix.}
+#'   \item{\code{qr}}{the QR decomposition from the second-step weighted
+#'   least-squares fit.}
+#'   \item{\code{tail}}{a character string indicating whether the lower or
+#'   upper tail was fitted.}
+#'   \item{\code{contrasts}}{the contrasts attribute of the design matrix, if
+#'   present.}
 #' }
 #'
 #' @seealso
-#' \code{\link{lesreg}}, \code{\link{lesreg.fit}},
-#' \code{\link[quantreg]{rq.wfit}}, \code{\link[stats]{lm.wfit}}
+#' \code{\link{lesreg}} for the user-level interface and a detailed
+#' description of the two-step ES regression procedure;
+#' \code{\link{lesreg.fit}} for the corresponding unweighted low-level fitter.
 #'
+#' \code{\link[quantreg]{rq.wfit}} for the first-step weighted quantile
+#' regression and \code{\link[stats]{lm.wfit}} for the second-step weighted
+#' least-squares regression.
 #' @examples
 #' set.seed(2026)
-#' n <- 200
+#' n <- 500
 #' x1 <- rnorm(n)
 #' x2 <- rnorm(n)
+#' tau <- 0.05
 #' y <- 1 + 2 * x1 - x2 + rnorm(n)
 #' x <- model.matrix(~ x1 + x2)
 #' weights <- stats::rexp(n)
-#' fit <- lesreg.wfit(x, y, weights = weights, tau = 0.05)
-#' fit$theta.hat
-#' fit.unit <- lesreg.wfit(x, y, tau = 0.05)
-#' fit.unit$weights
-#' fit.upper <- lesreg.wfit(x, y, weights = weights, tau = 0.05, upperTail = TRUE)
-#' fit.upper$theta.hat
+#' theta.true.lower <- c(1 +
+#'     stats::integrate(stats::qnorm, lower = 0, upper = tau)$value/tau, 2, -1)
+#' theta.true.upper <- c(1 +
+#'     stats::integrate(stats::qnorm, lower = 1-tau, upper = 1)$value/tau, 2, -1 )
 #'
+#' ## Fit weighted linear ES regression for lower tail
+#' fit <- lesreg.wfit(x, y, weights = weights, tau = tau)
+#' fit$coefficients
+#' theta.true.lower
+#'
+#' ## Fit weighted linear ES regression for upper tail
+#' fit.upper <- lesreg.wfit(x, y, weights = weights, tau = tau, upperTail = TRUE)
+#' fit.upper$coefficients
+#' theta.true.upper
 #' @export
 
 
