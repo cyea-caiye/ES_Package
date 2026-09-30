@@ -13,6 +13,6 @@ print.summary.lesreg <- function(x, digits = max(5L, getOption("digits") - 2L), 
   cat("Confidence level: ")
   print(format(round(x$level, digits = digits)), quote = FALSE, ...)
   cat("\nCoefficients:\n")
-  print(format(round(x$coefficients, digits = digits)), quote = FALSE)
+  print(format(round(x$coefficients.results, digits = digits)), quote = FALSE)
   invisible(x)
 }

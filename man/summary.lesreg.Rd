@@ -7,12 +7,14 @@
 \usage{
 \method{print}{summary.lesreg}(x, digits = max(5L, getOption("digits") - 2L), ...)
 
-\method{summary}{lesreg}(object,
-        method = c("default", "ind", "scl_N", "scl_sp", "rwb"),
-        covariance = FALSE, level = 0.95, B = 500, ...)
-
-\method{print}{summary.lesreg}(x,
-        digits = max(5L, getOption("digits") - 2L), ...)
+\method{summary}{lesreg}(
+  object,
+  method = c("default", "ind", "scl_N", "scl_sp", "rwb"),
+  covariance = FALSE,
+  level = 0.95,
+  B = 500,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class \code{"summary.lesreg"}, usually a result of a
@@ -25,87 +27,120 @@ call to \code{summary.lesreg}.}
 \item{object}{an object of class \code{"lesreg"}, usually a result of a call
 to \code{\link{lesreg}}.}
 
-\item{method}{character string specifying the method used to compute
-standard errors. There are currently five available methods:
+\item{method}{character string specifying the method used to estimate the
+covariance matrix of the ES regression coefficients. There are currently
+five available methods:
 \describe{
-  \item{\code{"default"}}{the default sandwich estimator for the two-step
-  expected shortfall regression fit.}
-  \item{\code{"ind"}}{an estimator based on a conditional truncated
-  variance approximation which is treated as independent of the
-  covariates.}
-  \item{\code{"scl_N"}}{an estimator based on a normal scale
-  approximation to the conditional truncated variance.}
-  \item{\code{"scl_sp"}}{an estimator based on a semiparametric scale
-  approximation to the conditional truncated variance.}
+  \item{\code{"default"}}{the default sandwich covariance estimator for
+  the two-step expected shortfall regression estimator.}
+  \item{\code{"ind"}}{an estimator that treats the conditional truncated
+  variance as constant across covariate values.}
+  \item{\code{"scl_N"}}{an estimator based on a location-scale model with
+  a normal approximation to the conditional truncated variance.}
+  \item{\code{"scl_sp"}}{an estimator based on a location-scale model with
+  a semiparametric approximation to the conditional truncated variance.}
   \item{\code{"rwb"}}{a random-weighting bootstrap estimator using
-  exponential random weights.}
+  independent exponential random weights.}
 }}
 
 \item{covariance}{logical flag indicating whether the estimated covariance
 matrix and, where available, its sandwich components should be returned.}
 
-\item{level}{confidence level for the reported confidence intervals.}
+\item{level}{confidence level for the reported confidence intervals. This
+must be a single number strictly between 0 and 1.}
 
-\item{B}{number of random-weighting bootstrap replications. Used only when
-\code{method = "rwb"}.}
+\item{B}{number of random-weighting bootstrap replications. This must be an
+integer greater than 1 and is used only when \code{method = "rwb"}.}
 }
 \value{
-The function \code{summary.lesreg} computes and returns a list of summary
-statistics of the fitted expected shortfall regression model given in
-\code{object}, using the components \code{call}, \code{terms},
-\code{x.fit}, \code{y.fit}, \code{beta.hat} and \code{theta.hat} from its
-argument, plus
+\code{summary.lesreg} returns an object of class
+\code{"summary.lesreg"} containing summary statistics and inference results
+for the fitted expected shortfall regression model. The documented
+components are:
 \describe{
-  \item{coefficients}{a matrix with columns for the estimated coefficients,
-  their standard errors, lower and upper confidence limits, and p-values.}
-  \item{residuals}{the residuals from the fitted second-step regression.}
-  \item{rdf}{the residual degrees of freedom.}
-  \item{tau}{the tail probability used for estimation.}
-  \item{method}{the variance estimation method used.}
-  \item{tail}{a character string indicating whether the lower or upper tail was fitted.}
-  \item{level}{the confidence level used for the reported confidence intervals.}
-  \item{cov}{the estimated covariance matrix, if \code{covariance = TRUE}.}
-  \item{Sigma_hat}{the estimated outer matrix in the sandwich covariance
-  calculation, if \code{covariance = TRUE} and \code{method != "rwb"}.}
-  \item{Omega_hat}{the estimated middle matrix in the sandwich covariance
-  calculation, if \code{covariance = TRUE} and \code{method != "rwb"}.}
+  \item{\code{coefficients.results}}{a matrix containing the estimated
+  expected shortfall regression coefficients, their standard errors, lower
+  and upper confidence limits, and \eqn{p}-values.}
+  \item{\code{residuals}}{the residuals from the second-step least-squares
+  regression, defined as the pseudo-response minus the fitted expected
+  shortfall values.}
+  \item{\code{rdf}}{the residual degrees of freedom.}
+  \item{\code{tau}}{the tail probability used for estimation.}
+  \item{\code{method}}{the method used to estimate the covariance matrix.}
+  \item{\code{tail}}{a character string indicating whether the lower or
+  upper tail was fitted.}
+  \item{\code{level}}{the confidence level used for the reported confidence
+  intervals.}
+  \item{\code{cov}}{the estimated covariance matrix, if
+  \code{covariance = TRUE}.}
+  \item{\code{Sigma_hat}}{the estimated outer matrix in the sandwich
+  covariance calculation, if \code{covariance = TRUE} and
+  \code{method != "rwb"}.}
+  \item{\code{Omega_hat}}{the estimated middle matrix in the sandwich
+  covariance calculation, if \code{covariance = TRUE} and
+  \code{method != "rwb"}.}
 }
 }
 \description{
-Summary method for class \code{"lesreg"}.
+Summarizes a fitted linear expected shortfall (ES) regression model and
+provides standard errors, confidence intervals, and \eqn{p}-values for the
+estimated ES regression coefficients.
 }
 \details{
-The fitted \code{"lesreg"} object contains both the first-step quantile
+A fitted \code{"lesreg"} object contains both the first-step quantile
 regression coefficients and the second-step expected shortfall regression
-coefficients. The summary method reports inference for the expected
-shortfall regression coefficients.
+coefficients. The summary method performs statistical inference for the
+expected shortfall regression coefficients. See \code{\link{lesreg}} for
+details on the underlying two-step estimation procedure.
 
-When \code{method = "default"}, standard errors are computed from the
-sandwich form used for the two-step expected shortfall regression estimator.
-The methods \code{"ind"}, \code{"scl_N"} and \code{"scl_sp"} use alternative
-estimates of the conditional truncated variance term. These estimates are
-computed internally using a conditional truncated variance estimator.
+When \code{method = "default"}, standard errors are computed using the
+sandwich covariance estimator associated with the two-step expected
+shortfall regression estimator.
 
-When \code{method = "rwb"}, standard errors and confidence intervals are
-computed from random-weighting bootstrap replications. The argument
+The methods \code{"ind"}, \code{"scl_N"}, and \code{"scl_sp"} use
+alternative estimators of the conditional truncated variance. The
+\code{"ind"} method treats this variance as constant across covariate
+values, whereas \code{"scl_N"} and \code{"scl_sp"} use location-scale
+approximations. These approaches follow the conditional truncated variance
+estimation methods described by Dimitriadis and Bayer (2019).
+
+When \code{method = "rwb"}, the covariance matrix is estimated using a
+random-weighting bootstrap with independent exponential random weights.
+The reported standard errors are obtained from the bootstrap covariance
+matrix, and confidence intervals are constructed using the empirical
+quantiles of the centered bootstrap coefficient estimates. The argument
 \code{B} controls the number of bootstrap replications.
 
-P-values are computed using the standard normal approximation.
+For all methods, the reported \eqn{p}-values are computed using a standard
+normal approximation.
 }
 \examples{
 set.seed(2026)
-n <- 200
+n <- 500
 x1 <- rnorm(n)
 x2 <- rnorm(n)
 y <- 1 + 2 * x1 - x2 + rnorm(n)
 dat <- data.frame(y = y, x1 = x1, x2 = x2)
 fit <- lesreg(y ~ x1 + x2, data = dat, tau = 0.05)
+
+## The default covariance estimation method.
 summary(fit)
+
+## The "ind" estimation method in Dimitriadis and Bayer (2019).
 summary(fit, method = "ind")
+
+## The "scl_N" estimation method in Dimitriadis and Bayer (2019).
 summary(fit, method = "scl_N", covariance = TRUE)
+
+## The random-weighting bootstrap method.
 summary(fit, method = "rwb", B = 100)
 
 }
+\references{
+Dimitriadis, T., and Bayer, S. (2019).
+A joint quantile and expected shortfall regression framework.
+\emph{Electronic Journal of Statistics}, 13(1), 1823--1871.
+}
 \seealso{
-\code{\link{lesreg}}, \code{\link{lesreg.fit}}, \code{\link{lesreg.wfit}},
+\code{\link{lesreg}}, \code{\link{lesreg.fit}}, \code{\link{lesreg.wfit}}
 }
