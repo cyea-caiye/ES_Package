@@ -2,7 +2,7 @@
 % Please edit documentation in R/print.summary.lesreg.huber.R
 \name{print.summary.lesreg.huber}
 \alias{print.summary.lesreg.huber}
-\title{Print Adaptive Huber Expected Shortfall Regression Summary}
+\title{Print Robust Expected Shortfall Regression Summary}
 \usage{
 \method{print}{summary.lesreg.huber}(x, digits = max(5L, getOption("digits") - 2L), ...)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/lesreg.huber.fit.R
 \name{lesreg.huber.fit}
 \alias{lesreg.huber.fit}
-\title{Fitter Function for Adaptive Huber Expected Shortfall Regression}
+\title{Low-Level Fitter for Robust Linear Expected Shortfall Regression}
 \usage{
 lesreg.huber.fit(
   x, y, tau = 0.05, method = "br",
@@ -11,104 +11,118 @@ lesreg.huber.fit(
 )
 }
 \arguments{
-\item{x}{numeric design matrix of dimension \eqn{n * p}. The current
+\item{x}{numeric design matrix of dimension \eqn{n \times p}. The current
 implementation requires exactly one intercept column.}
 
-\item{y}{numeric response vector of length \eqn{n}, or a one-column matrix.}
+\item{y}{numeric response vector of length \eqn{n}, or a one-column numeric
+matrix.}
 
-\item{tau}{tail probability. It must be a single number strictly between
-0 and 1.}
+\item{tau}{the quantile level associated with the ES to be estimated. This
+must be a single number strictly between 0 and 1. If
+\code{upperTail = FALSE}, the function fits the lower-tail ES associated
+with quantile level \code{tau}. If \code{upperTail = TRUE}, the function
+fits the upper-tail ES associated with quantile level \code{1 - tau}.
+See \code{\link{lesreg.huber}} for details.}
 
-\item{method}{method used for the first-step quantile regression; passed to
-\code{\link[quantreg]{rq.fit}}.}
+\item{method}{the method used for the first-step quantile regression. This
+is passed to \code{\link[quantreg]{rq.fit}}.}
 
-\item{upperTail}{logical. If \code{FALSE}, the lower-tail expected shortfall
-is fitted. If \code{TRUE}, the upper-tail expected shortfall is fitted.}
+\item{upperTail}{logical. If \code{FALSE}, the lower-tail ES is estimated.
+If \code{TRUE}, the upper-tail ES is estimated.}
 
-\item{eps}{non-negative numerical tolerance used when constructing the tail
-indicator.}
+\item{eps}{a non-negative numerical tolerance used when constructing the
+tail indicator.}
 
 \item{huber.epsilon}{positive numerical convergence tolerance used by the
 adaptive Huber regression algorithm.}
 
-\item{huber.maxit}{positive integer giving the maximum number of adaptive
-Huber iterations.}
+\item{huber.maxit}{positive integer giving the maximum number of iterations
+for the adaptive Huber regression algorithm.}
 
 \item{...}{additional arguments passed to
 \code{\link[quantreg]{rq.fit}}.}
 }
 \value{
-A list containing:
+A list containing at least the following components:
 \describe{
-  \item{coefficients}{adaptive Huber expected shortfall regression
-    coefficients.}
-  \item{beta.hat}{first-step quantile regression coefficients.}
-  \item{theta.hat}{second-step adaptive Huber expected shortfall
-    coefficients.}
-  \item{x.fit}{design matrix used in fitting.}
-  \item{y.fit}{response used internally in fitting.}
-  \item{residuals}{second-step pseudo-response residuals.}
-  \item{fitted.values}{fitted expected shortfall values.}
-  \item{quantile.residuals}{first-step quantile residuals.}
-  \item{quantile.fitted}{fitted conditional quantile values.}
-  \item{es.fitted}{fitted conditional expected shortfall values.}
-  \item{pseudo.response}{pseudo-response used in the adaptive Huber
-    second step.}
-  \item{pseudo.residuals}{pseudo-response residuals.}
-  \item{response.residuals}{response minus fitted expected shortfall values.}
-  \item{indicator}{tail indicator used to construct the pseudo-response.}
-  \item{rank}{rank of the design matrix.}
-  \item{df.residual}{residual degrees of freedom based on the design matrix.}
-  \item{quantile.fit}{raw first-step quantile regression fit.}
-  \item{es.fit}{raw adaptive Huber fit returned by the internal C++ engine.}
-  \item{huber.tau}{adaptively selected Huber robustification parameter.}
-  \item{huber.iteration}{number of adaptive Huber iterations performed.}
-  \item{huber.epsilon}{Huber convergence tolerance used.}
-  \item{huber.maxit}{maximum number of Huber iterations allowed.}
-  \item{tail}{either \code{"lower"} or \code{"upper"}.}
+  \item{\code{coefficients}}{a named vector of adaptive Huber expected
+  shortfall regression coefficients.}
+  \item{\code{beta.hat}}{a named vector of linear quantile regression
+  coefficients from the first-step quantile regression.}
+  \item{\code{x.fit}}{the design matrix used internally for fitting.}
+  \item{\code{y.fit}}{the response used internally for fitting.}
+  \item{\code{residuals}}{the residuals from the second-step adaptive Huber
+  regression, defined as the pseudo-response minus the fitted expected
+  shortfall values.}
+  \item{\code{fitted.values}}{the fitted expected shortfall values.}
+  \item{\code{quantile.residuals}}{the residuals from the first-step
+  quantile regression.}
+  \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
+  \item{\code{es.fitted}}{the fitted conditional expected shortfall values.}
+  \item{\code{pseudo.response}}{the pseudo-response used in the second-step
+  adaptive Huber regression.}
+  \item{\code{response.residuals}}{the observed response minus the fitted
+  expected shortfall values.}
+  \item{\code{indicator}}{the tail indicator used to construct the
+  pseudo-response.}
+  \item{\code{rank}}{the numeric rank of the design matrix used in
+  fitting.}
+  \item{\code{df.residual}}{the residual degrees of freedom based on the
+  rank of the design matrix.}
+  \item{\code{huber.r}}{the adaptively selected Huber robustification
+  parameter.}
+  \item{\code{huber.iteration}}{the number of adaptive Huber iterations
+  performed.}
+  \item{\code{huber.epsilon}}{the Huber convergence tolerance used.}
+  \item{\code{huber.maxit}}{the maximum number of Huber iterations allowed.}
+  \item{\code{tail}}{a character string indicating whether the lower or
+  upper tail was fitted.}
 }
 }
 \description{
-This is the basic computing engine for unweighted linear expected shortfall
-regression with an adaptive Huber second-step estimator. It works directly
-with a numeric design matrix and response vector.
+Low-level fitting function for robust linear expected shortfall (ES)
+regression using the adaptive Huber two-step procedure implemented by
+\code{\link{lesreg.huber}}. The function works directly with a numeric
+design matrix and response vector.
 
-For formula processing, missing-value handling, subsets, and factor
-variables, use \code{\link{lesreg.huber}}.
+For formula-based model specification, data handling, subsets,
+missing-value handling, and factor variables, use
+\code{\link{lesreg.huber}}.
 }
 \details{
-The estimator is computed in two steps. First, linear quantile regression
-is fitted at level \code{tau}. Let \eqn{\hat q_i} denote the fitted
-conditional quantile. The pseudo-response is
+\code{lesreg.huber.fit} is the low-level fitting function used by
+\code{\link{lesreg.huber}} for unweighted robust linear ES regression. It
+does not perform formula processing or construct a model frame and
+therefore requires the design matrix and response to be supplied directly.
 
-\deqn{
-w_i =
-\hat q_i +
-\tau^{-1}
-1(y_i \leq \hat q_i + \epsilon)
-(y_i-\hat q_i).
-}
+The function uses the same first-step quantile regression and
+pseudo-response construction as \code{\link{lesreg.fit}}, but replaces the
+second-step least-squares regression with adaptive Huber regression. The
+Huber robustification parameter is selected internally and returned as
+\code{huber.r}.
 
-Unlike \code{\link{lesreg.fit}}, which fits the second step by least
-squares, \code{lesreg.huber.fit} regresses the pseudo-response on the
-covariates using adaptive Huber regression.
+If \code{upperTail = TRUE}, the upper-tail model is fitted using the same
+transformation principle as in \code{\link{lesreg.huber}}. Fitted
+quantities are returned on the original response scale, whereas
+\code{x.fit} and \code{y.fit} retain the internal fitting scale.
 
-The adaptive Huber tuning parameter is estimated internally and is returned
-as \code{huber.tau}.
-
-For upper-tail estimation, the corresponding lower-tail problem is fitted
-internally after a sign transformation, and fitted quantities are returned
-on the original response scale.
-
-The current implementation requires an intercept because the underlying
-adaptive Huber fitting routine constructs its own intercept internally.
+The current implementation requires exactly one intercept column in
+\code{x}.
 }
 \examples{
-set.seed(2026)
-n <- 200
+set.seed(1)
+n <- 500
 x1 <- rnorm(n)
 x2 <- rnorm(n)
-y <- 1 + 2 * x1 - x2 + rnorm(n)
+tau <- 0.1
+df <- 4
+
+## Generate data with heavy-tailed errors
+eps <- rt(n, df = df)
+y <- 1 + 2 * x1 - x2 + eps
+est <-
+    stats::integrate(stats::qt, df = df, lower = 0, upper = tau)$value/tau
+theta.true.lower <- c(1 + est, 2, -1)
 
 x <- model.matrix(~ x1 + x2)
 
@@ -117,9 +131,9 @@ fit <- lesreg.huber.fit(
   y,
   tau = 0.1
 )
-
-fit$theta.hat
-fit$huber.tau
+print(theta.true.lower)
+print(fit$coefficients)
+print(fit$huber.r)
 
 }
 \seealso{

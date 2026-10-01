@@ -1,4 +1,4 @@
-#' Print Adaptive Huber Expected Shortfall Regression Summary
+#' Print Robust Expected Shortfall Regression Summary
 #'
 #' @description
 #' Print method for objects of class \code{"summary.lesreg.huber"}.
@@ -23,14 +23,14 @@ print.summary.lesreg.huber <- function(x, digits = max(5L, getOption("digits") -
   }
   cat("\nQuantile level:\n")
   print(format(quantile.level, digits = digits), quote = FALSE)
-  cat("\nAlpha3:\n")
-  print(format(x$alpha3, digits = digits), quote = FALSE)
+  cat("\nRobustification:\n")
+  print(format(x$rob, digits = digits), quote = FALSE)
   cat("\ngamma:\n")
   print(format(x$gamma, digits = digits), quote = FALSE)
   cat("\nConfidence level:\n")
   print(format(x$level, digits = digits), quote = FALSE)
   cat("\nExpected shortfall regression coefficients:\n")
-  coef_print <- x$coefficients
+  coef_print <- x$coefficients.results
   p_col <- match("P-value", colnames(coef_print))
   if(!is.na(p_col)){
     numeric_part <- coef_print[, -p_col, drop = FALSE]

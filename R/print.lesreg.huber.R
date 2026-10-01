@@ -1,4 +1,9 @@
-#' @rdname lesreg.huber
+#' Print a lesreg.huber Object
+#'
+#' @param x an object of class \code{"lesreg.huber"}.
+#' @param digits the number of significant digits to use when printing.
+#' @param ... further arguments passed to or from other methods.
+#'
 #' @export
 print.lesreg.huber <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
   cat(
@@ -46,7 +51,7 @@ print.lesreg.huber <- function(x, digits = max(3L, getOption("digits") - 3L), ..
   cat("\n")
   cat("Adaptive Huber threshold:\n")
   print.default(
-    format(x$huber.tau, digits = digits),
+    format(x$huber.r, digits = digits),
     quote = FALSE
   )
   cat("\n")
