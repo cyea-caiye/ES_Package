@@ -19,7 +19,7 @@ print.lesreg <- function(x, ...){
   cat("\nQuantile regression coefficients:\n")
   print(x$beta.hat, ...)
   cat("\nExpected shortfall regression coefficients:\n")
-  print(x$theta.hat, ...)
+  print(x$coefficients, ...)
   nobs <- length(stats::residuals(x))
   rdf <- x$df.residual
   cat("\nDegrees of freedom:", nobs, "total;", rdf, "residual\n")

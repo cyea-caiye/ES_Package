@@ -249,7 +249,7 @@ summary.lesreg <- function(
         ...
       )
 
-      coef.rwb[b, ] <- fit.b$theta.hat
+      coef.rwb[b, ] <- fit.b$coefficients
     }
 
     diff <- sqrt(n) *

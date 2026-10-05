@@ -3,13 +3,37 @@
 #' @description
 #' Summary method for objects of class \code{"lesreg.ts"}.
 #'
+#' @details
+#' Inference is reported for the final weighted expected shortfall estimator.
+#' Standard errors are based on the sandwich covariance matrix computed during
+#' model fitting using the selected \code{covMethod} and
+#' \code{truncationMethod}.
+#'
 #' @param object an object of class \code{"lesreg.ts"}.
 #' @param level confidence level for the reported confidence intervals.
-#' @param covariance logical. If \code{TRUE}, the estimated covariance
-#'   matrix is included in the returned object.
+#' @param covariance logical. If \code{TRUE}, the estimated covariance matrix
+#'   together with the sandwich components \code{Sigma_hat} and
+#'   \code{Omega_hat} is included in the returned object.
 #' @param ... further arguments passed to or from other methods.
 #'
-#' @return An object of class \code{"summary.lesreg.ts"}.
+#' @return An object of class \code{"summary.lesreg.ts"} containing the
+#'   weighted expected shortfall coefficient estimates, standard errors,
+#'   confidence intervals, and p-values. If \code{covariance = TRUE}, the
+#'   estimated covariance matrix and sandwich components are also returned.
+#'
+#' @examples
+#' set.seed(123)
+#' y <- as.numeric(arima.sim(model = list(ar = 0.3), n = 500))
+#'
+#' fit <- lesreg.ts(
+#'   y,
+#'   tau = 0.1,
+#'   qmodel = "SAV",
+#'   emodel = "SAV"
+#' )
+#'
+#' summary(fit)
+#' summary(fit, covariance = TRUE)
 #'
 #' @export
 summary.lesreg.ts <- function(object,
@@ -52,16 +76,19 @@ summary.lesreg.ts <- function(object,
     call = object$call,
     coefficients = coefficients,
     beta.hat = object$beta.hat,
-    theta.unweighted = object$theta.unweighted,
     tau = object$tau,
     qmodel = object$qmodel,
     emodel = object$emodel,
+    covMethod = object$covMethod,
+    truncationMethod = object$truncationMethod,
     level = level,
     nobs = n
   )
 
   if(covariance){
     ans$cov <- VC / n
+    ans$Sigma_hat <- object$weighted.fit$Sigma
+    ans$Omega_hat <- object$weighted.fit$Omega
   }
 
   class(ans) <- "summary.lesreg.ts"

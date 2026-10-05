@@ -150,7 +150,6 @@
 #'   \item{\code{quantile.residuals}}{the residuals from the first-step quantile
 #'   regression.}
 #'   \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
-#'   \item{\code{es.fitted}}{the fitted conditional expected shortfall values.}
 #'   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
 #'   least-squares regression.}
 #'   \item{\code{response.residuals}}{the observed response minus the fitted
@@ -350,9 +349,7 @@ lesreg <- function(formula, tau = 0.05, data, subset, weights, na.action,
   fit$fitted.values <- drop(fit$fitted.values)
   fit$quantile.residuals <- drop(fit$quantile.residuals)
   fit$quantile.fitted <- drop(fit$quantile.fitted)
-  fit$es.fitted <- drop(fit$es.fitted)
   fit$pseudo.response <- drop(fit$pseudo.response)
-  fit$pseudo.residuals <- drop(fit$pseudo.residuals)
   fit$response.residuals <- drop(fit$response.residuals)
   fit$eps <- eps
   fit$lm.tol <- lm.tol

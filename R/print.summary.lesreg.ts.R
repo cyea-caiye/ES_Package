@@ -12,6 +12,8 @@ print.summary.lesreg.ts <- function(
   print(format(round(x$tau, digits = digits)), quote = FALSE)
   cat("Quantile model: ", x$qmodel, "\n", sep = "")
   cat("Expected shortfall model: ", x$emodel, "\n", sep = "")
+  cat("Covariance method: ", x$covMethod, "\n", sep = "")
+  cat("Truncation method: ", x$truncationMethod, "\n", sep = "")
   cat("Confidence level: ")
   print(format(round(x$level, digits = digits)), quote = FALSE)
   cat("\nWeighted expected shortfall coefficients:\n")

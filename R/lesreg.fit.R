@@ -80,7 +80,6 @@
 #'   \item{\code{quantile.residuals}}{the residuals from the first-step quantile
 #'   regression.}
 #'   \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
-#'   \item{\code{es.fitted}}{the fitted conditional expected shortfall values.}
 #'   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
 #'   least-squares regression.}
 #'   \item{\code{response.residuals}}{the observed response minus the fitted
@@ -172,16 +171,13 @@ lesreg.fit <- function(x, y, tau = 0.05, method = "br", upperTail = FALSE, eps =
     return(list(
       coefficients = numeric(),
       beta.hat = numeric(),
-      theta.hat = numeric(),
       x.fit = x.fit,
       y.fit = y.fit,
       residuals = y,
       fitted.values = 0 * y,
       quantile.residuals = y,
       quantile.fitted = 0 * y,
-      es.fitted = 0 * y,
       pseudo.response = y,
-      pseudo.residuals = y,
       response.residuals = y,
       indicator = numeric(length(y)),
       rank = 0L,
@@ -226,14 +222,11 @@ lesreg.fit <- function(x, y, tau = 0.05, method = "br", upperTail = FALSE, eps =
     x.fit = x.fit,
     y.fit = y.fit,
     beta.hat = beta.hat,
-    theta.hat = theta.hat,
     residuals = pseudo.residuals,
     fitted.values = es.hat,
     quantile.residuals = quantile.residuals,
     quantile.fitted = q.hat,
-    es.fitted = es.hat,
     pseudo.response = w,
-    pseudo.residuals = pseudo.residuals,
     response.residuals = response.residuals,
     indicator = indicator,
     rank = fit.es$rank,

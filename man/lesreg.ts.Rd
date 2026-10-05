@@ -12,7 +12,9 @@ lesreg.ts(
   REP = 5,
   MAXITER = 1000,
   covMethod = 1,
-  truncationMethod = 1
+  truncationMethod = 1,
+  ini_spec = FALSE,
+  order = NULL
 )
 }
 \arguments{
@@ -31,10 +33,20 @@ By default, the same model as \code{qmodel}.}
 
 \item{MAXITER}{Maximum number of iterations for each optimization step.}
 
-\item{covMethod}{Method used for variance-covariance estimation.}
+\item{covMethod}{Integer specifying the conditional variance estimator used
+for inference. \code{1} uses squared residuals; \code{2} uses the
+truncated-moment based conditional variance estimator.}
 
-\item{truncationMethod}{Method used for truncated conditional variance
-estimation.}
+\item{truncationMethod}{Integer specifying the estimator of the truncated
+second moment used when \code{covMethod = 2}. Must be either
+\code{1} or \code{2}.}
+
+\item{ini_spec}{Logical. If \code{TRUE}, sieve-based initial values are used
+for the optimization. If \code{FALSE}, random initial values are used.}
+
+\item{order}{Positive integer giving the sieve order used when
+\code{ini_spec = TRUE}. If \code{NULL}, it is set to
+\code{round(log(length(y)))}.}
 }
 \value{
 An object of class \code{"lesreg.ts"} containing the fitted
@@ -43,4 +55,19 @@ An object of class \code{"lesreg.ts"} containing the fitted
 \description{
 Fits a joint autoregressive quantile and expected shortfall model using
 the two-step estimation procedure and the weighted estimator.
+}
+\examples{
+set.seed(123)
+y <- as.numeric(arima.sim(model = list(ar = 0.3), n = 500))
+
+fit <- lesreg.ts(
+  y,
+  tau = 0.1,
+  qmodel = "SAV",
+  emodel = "SAV"
+)
+
+fit
+summary(fit)
+
 }

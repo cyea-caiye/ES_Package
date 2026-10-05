@@ -14,7 +14,6 @@ including estimation and inference procedures.
 
 Authors:
 \itemize{
-  \item Peiyao Cai \email{pycai@umich.edu}
   \item Ye Cai \email{cyea@umich.edu}
   \item Kean Ming Tan \email{keanming@umich.edu}
   \item Xuming He \email{hex@wustl.edu}

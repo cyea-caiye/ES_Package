@@ -312,7 +312,7 @@ ESEst_Inf_fair = function(qmodel, model, pval, data, weights, predict, REP, MAXI
     emp_es = (obs <= 300)*mean(data[which(data<=q_hat)] ) + (obs>=300)*mean(data[1:300][which(data[1:300]<=q_hat[1:300])])
 
     theta_tmp = initials$theta_0
-    ES_tmp = get_ES_value(data = data, theta = theta_tmp, emodel = model)
+    ES_tmp = get_ES_value(data = data, theta = theta_tmp, emodel = model, tau = pval)
     theta_tmp[1] = theta_tmp[1] - max(ES_tmp)*(max(ES_tmp)>0)
 
     BestInitialCond <- matrix(theta_tmp,nrow = 1)
@@ -784,6 +784,93 @@ ESEst_Inf_wls_fair = function(pseudo_y,emp_es, model, pval, data, weights, predi
 get_ES_value_joint = function(data,theta,emodel,qt0){
   obs = length(data)
   emp_es = qt0 - 0.5 #just to make sure strictly smaller
+
+  ES = rep(0,obs)
+  ES[1] = emp_es
+
+  ES <- if (emodel == 1) {
+    SAV_ES(theta, data, ES[1], ES, obs, F)
+  } else if (emodel == 2) {
+    AS_ES(theta, data, ES[1], ES, obs, F)
+  } else if (emodel == 3) {
+    GARCH_ES(theta, data, ES[1], ES, obs, F)
+  } else if (emodel == 4){
+    SAV12_ES(theta, data, ES[1], ES, obs, F)
+  } else if (emodel == 5){
+    AS12_ES(theta, data, ES[1], ES, obs, F)
+  }
+  return(ES)
+}
+
+get_design_matrix = function(data, qmodel, order){
+  design_mat = NULL
+  for(i in 1:order){
+    if(qmodel %in% c(1,4)){
+      design_mat = cbind(design_mat, dplyr::lag(abs(data),i))
+    }else if (qmodel %in% c(2,5)){
+      design_mat = cbind(design_mat,  dplyr::lag(data*(data>=0),i))
+      design_mat = cbind(design_mat,  dplyr::lag(data*(data<0),i))}
+  }
+  design_mat = design_mat[-(1:order),]
+  y_lag = data[-(1:order)]
+  return(list(y_lag = y_lag, design_mat = design_mat))
+}
+
+caviar_linear = function(data, qmodel, order,tau){
+  design = get_design_matrix(data, qmodel,order)
+  y_lag = design$y_lag
+  design_mat = design$design_mat
+  rq_data = as.data.frame(cbind(y_lag, design_mat))
+  rq_obj = quantreg::rq(y_lag~., tau = tau,data = rq_data)
+  rq_coef = rq_obj$coefficients
+  rq_fitted = rq_obj$fitted.values
+  fitted_initial = c()
+  y_initial = c(1, data[1:(order - 1)])
+  for(i in 1:order){
+    fitted_initial = c(fitted_initial, rq_coef[1:i]%*%y_initial[1:i])
+  }
+  #Q0 = Y_full[-c(dim(Y_full)[1]),2]
+  rq_fitted = c(fitted_initial, rq_fitted)
+  return(rq_fitted)
+}
+
+get_sieve_initial = function(data, qmodel, emodel, order,tau){
+  q_hat = as.vector(caviar_linear(data = data, qmodel = qmodel, order = order,tau = tau))
+  q_hat_lag = c(0,q_hat[1:(length(q_hat) - 1)])
+  if(qmodel %in% c(1,3)){
+    ctrl_variable = abs(c(0, data[1:(length(data) - 1) ]) )
+  }else if (qmodel == 2){
+    y_lag = c(0, data[1:(length(data) - 1) ])
+    y_lag_pos = y_lag*(y_lag >=0)
+    y_lag_neg = -y_lag*(y_lag<0)
+    ctrl_variable = cbind(y_lag_pos, y_lag_neg)
+  }else if (qmodel == 4){
+    ctrl_variable = cbind(abs(c(0, data[1:(length(data) - 1) ]) ), abs(c(0, 0,data[1:(length(data) - 2) ]) ) )
+  }else if (qmodel == 5){
+    y_lag1 = c(0, data[1:(length(data) - 1) ])
+    y_lag2 = c(0,0, data[1:(length(data) -2) ])
+    y_lag1_pos = y_lag1*(y_lag1>=0)
+    y_lag1_neg = -y_lag1*(y_lag1<0)
+    y_lag2_pos = y_lag2*(y_lag2>=0)
+    y_lag2_neg = -y_lag2*(y_lag2 <0)
+    ctrl_variable = cbind(y_lag1_pos, y_lag1_neg, y_lag2_pos, y_lag2_neg)
+  }
+  design_mat = cbind(q_hat_lag, ctrl_variable)
+  lm_obj = stats::lm(q_hat~design_mat)
+  beta_0 = as.vector(summary(lm_obj)$coefficients[,'Estimate'])
+  theta_0 = beta_0
+  theta_0[1] = theta_0[1] - 0.5*max(abs(q_hat))
+  return(list(beta_0 = beta_0, theta_0 = theta_0))
+}
+
+get_ES_value = function(data, theta, emodel, tau){
+  obs = length(data)
+  emp_qnt <- if (obs < 300){
+    quantile(data[1:obs], tau)
+  } else {
+    quantile(data[1:300], tau)
+  }
+  emp_es = (obs <= 300)*mean(data[which(data<=emp_qnt)] ) + (obs>=300)*mean(data[1:300][which(data[1:300]<=emp_qnt)])
 
   ES = rep(0,obs)
   ES[1] = emp_es

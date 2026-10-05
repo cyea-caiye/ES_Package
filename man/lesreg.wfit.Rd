@@ -59,7 +59,6 @@ A list containing at least the following components:
   \item{\code{quantile.residuals}}{the residuals from the first-step quantile
   regression.}
   \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
-  \item{\code{es.fitted}}{the fitted conditional expected shortfall values.}
   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
   weighted least-squares regression.}
   \item{\code{response.residuals}}{the observed response minus the fitted

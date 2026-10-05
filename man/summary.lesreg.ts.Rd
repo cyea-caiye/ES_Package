@@ -21,12 +21,37 @@
 
 \item{level}{confidence level for the reported confidence intervals.}
 
-\item{covariance}{logical. If \code{TRUE}, the estimated covariance
-matrix is included in the returned object.}
+\item{covariance}{logical. If \code{TRUE}, the estimated covariance matrix
+together with the sandwich components \code{Sigma_hat} and
+\code{Omega_hat} is included in the returned object.}
 }
 \value{
-An object of class \code{"summary.lesreg.ts"}.
+An object of class \code{"summary.lesreg.ts"} containing the
+  weighted expected shortfall coefficient estimates, standard errors,
+  confidence intervals, and p-values. If \code{covariance = TRUE}, the
+  estimated covariance matrix and sandwich components are also returned.
 }
 \description{
 Summary method for objects of class \code{"lesreg.ts"}.
+}
+\details{
+Inference is reported for the final weighted expected shortfall estimator.
+Standard errors are based on the sandwich covariance matrix computed during
+model fitting using the selected \code{covMethod} and
+\code{truncationMethod}.
+}
+\examples{
+set.seed(123)
+y <- as.numeric(arima.sim(model = list(ar = 0.3), n = 500))
+
+fit <- lesreg.ts(
+  y,
+  tau = 0.1,
+  qmodel = "SAV",
+  emodel = "SAV"
+)
+
+summary(fit)
+summary(fit, covariance = TRUE)
+
 }

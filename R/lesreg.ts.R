@@ -13,12 +13,33 @@
 #'   By default, the same model as \code{qmodel}.
 #' @param REP Number of repetitions used in the optimization procedure.
 #' @param MAXITER Maximum number of iterations for each optimization step.
-#' @param covMethod Method used for variance-covariance estimation.
-#' @param truncationMethod Method used for truncated conditional variance
-#'   estimation.
-#'
+#' @param covMethod Integer specifying the conditional variance estimator used
+#'   for inference. \code{1} uses squared residuals; \code{2} uses the
+#'   truncated-moment based conditional variance estimator.
+#' @param truncationMethod Integer specifying the estimator of the truncated
+#'   second moment used when \code{covMethod = 2}. Must be either
+#'   \code{1} or \code{2}.
+#' @param ini_spec Logical. If \code{TRUE}, sieve-based initial values are used
+#'   for the optimization. If \code{FALSE}, random initial values are used.
+#' @param order Positive integer giving the sieve order used when
+#'   \code{ini_spec = TRUE}. If \code{NULL}, it is set to
+#'   \code{round(log(length(y)))}.
 #' @return An object of class \code{"lesreg.ts"} containing the fitted
 #'   quantile and expected shortfall models.
+#'
+#' @examples
+#' set.seed(123)
+#' y <- as.numeric(arima.sim(model = list(ar = 0.3), n = 500))
+#'
+#' fit <- lesreg.ts(
+#'   y,
+#'   tau = 0.1,
+#'   qmodel = "SAV",
+#'   emodel = "SAV"
+#' )
+#'
+#' fit
+#' summary(fit)
 #'
 #' @export
 lesreg.ts <- function(y,
@@ -28,7 +49,9 @@ lesreg.ts <- function(y,
                       REP = 5,
                       MAXITER = 1000,
                       covMethod = 1,
-                      truncationMethod = 1){
+                      truncationMethod = 1,
+                      ini_spec = FALSE,
+                      order = NULL){
   if(!is.numeric(y)){
     stop("'y' must be numeric")
   }
@@ -45,8 +68,31 @@ lesreg.ts <- function(y,
   if(!is.numeric(MAXITER) || length(MAXITER) != 1L || is.na(MAXITER) || MAXITER < 1){
     stop("'MAXITER' must be a positive integer")
   }
+  if(!is.numeric(covMethod) || length(covMethod) != 1L || is.na(covMethod) ||
+     covMethod != as.integer(covMethod) || !covMethod %in% c(1L, 2L)){
+    stop("'covMethod' must be either 1 or 2")
+  }
+  if(!is.numeric(truncationMethod) || length(truncationMethod) != 1L || is.na(truncationMethod) ||
+     truncationMethod != as.integer(truncationMethod) || !truncationMethod %in% c(1L, 2L)){
+    stop("'truncationMethod' must be either 1 or 2")
+  }
+  if(!is.logical(ini_spec) || length(ini_spec) != 1L || is.na(ini_spec)){
+    stop("'ini_spec' must be TRUE or FALSE")
+  }
+
+  if(!is.null(order)){
+    if(!is.numeric(order) || length(order) != 1L || is.na(order) || order < 1 || order != as.integer(order)){
+      stop("'order' must be a positive integer")
+    }
+    order <- as.integer(order)
+  }
+  if(ini_spec && is.null(order)){
+    order <- as.integer(round(log(length(y)), 0))
+  }
   REP <- as.integer(REP)
   MAXITER <- as.integer(MAXITER)
+  covMethod <- as.integer(covMethod)
+  truncationMethod <- as.integer(truncationMethod)
   models <- c(
     SAV   = 1L,
     AS    = 2L,
@@ -82,11 +128,16 @@ lesreg.ts <- function(y,
     MAXITER = MAXITER,
     covMethod = covMethod,
     truncationMethod = truncationMethod,
-    order = NULL,
-    ini_spec = FALSE
+    order = order,
+    ini_spec = ini_spec
   )
 
   weights <- 1 / (fit.unweighted$denom^2)
+  if(ini_spec){
+    warmstart <- fit.unweighted$res[, "c_est"]
+  } else{
+    warmstart <- NULL
+  }
 
   fit.weighted <- ESEst_Inf_wls_fair(
     pseudo_y = fit.unweighted$pseudo_y,
@@ -98,7 +149,7 @@ lesreg.ts <- function(y,
     predict = FALSE,
     REP = REP,
     MAXITER = MAXITER,
-    warmstart = NULL,
+    warmstart = warmstart,
     covMethod = covMethod,
     truncationMethod = truncationMethod,
     q_hat = fit.unweighted$q_hat
@@ -117,7 +168,7 @@ lesreg.ts <- function(y,
     pseudo.response = fit.unweighted$pseudo_y,
     weights = weights,
     VC = fit.weighted$VC,
-    ci = fit.weighted$res[ , c("ci_low", "ci_up"), drop = FALSE],
+    ci = fit.weighted$res[, c("ci_low", "ci_up"), drop = FALSE],
     tau = tau,
     qmodel = qmodel,
     emodel = emodel,
@@ -125,6 +176,8 @@ lesreg.ts <- function(y,
     MAXITER = MAXITER,
     covMethod = covMethod,
     truncationMethod = truncationMethod,
+    ini_spec = ini_spec,
+    order = order,
     unweighted.fit = fit.unweighted,
     weighted.fit = fit.weighted,
     call = match.call()
