@@ -9,6 +9,8 @@
 \arguments{
 \item{x}{An object returned from \code{lesreg.highdim.inference}, representing the fitted model.}
 
+\item{digits}{the number of significant digits to use when printing.}
+
 \item{...}{Additional arguments passed to printing methods.}
 }
 \description{

@@ -2,40 +2,112 @@
 % Please edit documentation in R/summary.lesreg.huber.R
 \name{summary.lesreg.huber}
 \alias{summary.lesreg.huber}
-\title{Summarizing Adaptive Huber Expected Shortfall Regression Fits}
+\title{Summarizing Robust Expected Shortfall Regression Fits}
 \usage{
-\method{summary}{lesreg.huber}(
-  object,
-  alpha3 = 1,
-  gamma = NULL,
-  covariance = FALSE,
-  level = 0.95,
-  ...
-)
+\method{summary}{lesreg.huber}(object, rob = 1, gamma = NULL, covariance = FALSE, level = 0.95, ...)
 }
 \arguments{
 \item{object}{an object of class \code{"lesreg.huber"}, usually a result
 of a call to \code{\link{lesreg.huber}}.}
 
-\item{alpha3}{positive numeric scalar used in the default calibration of
-the second robustification parameter \code{gamma}. The default is 1.}
+\item{rob}{positive numeric scalar used in the default calibration of the
+second robustification parameter \code{gamma}. The default is 1.}
 
 \item{gamma}{positive numeric scalar giving the truncation parameter used
-in robust covariance estimation. If \code{NULL}, it is set to
-\code{(alpha3 * n / (p * log(n)))^(1/3)}.}
+in the robust covariance estimator. If \code{NULL}, it is set to
+\code{(rob * n / (p * log(n)))^(1/3)}.}
 
 \item{covariance}{logical flag indicating whether the estimated covariance
 matrix and its sandwich components should be returned.}
 
-\item{level}{confidence level for the reported confidence intervals.}
+\item{level}{confidence level for the reported confidence intervals. This
+must be a single number strictly between 0 and 1.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \value{
-A list of class \code{"summary.lesreg.huber"} containing coefficient
-estimates, standard errors, confidence intervals, p-values, and the
-robust covariance tuning parameters.
+\code{summary.lesreg.huber} returns an object of class
+\code{"summary.lesreg.huber"} containing:
+\describe{
+  \item{\code{call}}{the call that produced the fitted model.}
+  \item{\code{terms}}{the \code{\link{terms}} object used in fitting.}
+  \item{\code{coefficients.results}}{a matrix containing the estimated robust
+  expected shortfall regression coefficients, their standard errors, lower
+  and upper confidence limits, and \eqn{p}-values.}
+  \item{\code{residuals}}{the residuals from the second-step adaptive Huber
+  regression.}
+  \item{\code{tau}}{the tail probability used for estimation.}
+  \item{\code{tail}}{a character string indicating whether the lower or
+  upper tail was fitted.}
+  \item{\code{level}}{the confidence level used for the reported confidence
+  intervals.}
+  \item{\code{rob}}{the calibration constant used for the default choice of
+  \code{gamma}.}
+  \item{\code{gamma}}{the truncation parameter used in the robust covariance
+  estimator.}
+  \item{\code{cov}}{the estimated covariance matrix, if
+  \code{covariance = TRUE}.}
+  \item{\code{Sigma_hat}}{the estimated outer matrix in the sandwich
+  covariance calculation, if \code{covariance = TRUE}.}
+  \item{\code{Omega_gamma_hat}}{the robustly estimated middle matrix in the
+  sandwich covariance calculation, if \code{covariance = TRUE}.}
+}
 }
 \description{
-Summary method for objects of class \code{"lesreg.huber"}.
+Summarizes a fitted robust linear expected shortfall (ES) regression model
+returned by \code{\link{lesreg.huber}}. The method reports coefficient
+estimates, robust standard errors, confidence intervals, and \eqn{p}-values.
+The covariance estimator follows the robust inference procedure of
+He et al. (2023).
+}
+\details{
+A fitted \code{"lesreg.huber"} object contains the first-step quantile
+regression coefficients and the second-step adaptive Huber ES regression
+coefficients. This summary method performs statistical inference for the
+ES regression coefficients.
+
+The covariance estimator has a sandwich form. The middle matrix
+\eqn{\boldsymbol{\Omega}} is estimated robustly by truncating the
+estimating-equation residuals at the level \code{gamma}, following
+He et al. (2023). If \code{gamma = NULL}, the truncation level is calibrated
+automatically as \code{(rob * n / (p * log(n)))^(1/3)}, where \code{n} is
+the sample size and \code{p} is the number of fitted ES regression
+coefficients.
+
+The reported confidence intervals and \eqn{p}-values are based on a
+standard normal approximation.
+}
+\examples{
+set.seed(1)
+n <- 500
+x1 <- rnorm(n)
+x2 <- rnorm(n)
+tau <- 0.1
+df <- 4
+
+## Generate data with heavy-tailed errors
+eps <- rt(n, df = df)
+y <- 1 + 2 * x1 - x2 + eps
+dat <- data.frame(y = y, x1 = x1, x2 = x2)
+
+## Fit lower-tail robust ES regression
+fit <- lesreg.huber(
+  y ~ x1 + x2,
+  data = dat,
+  tau = tau
+)
+summary(fit)
+
+}
+\references{
+He, X., Tan, K. M., and Zhou, W.-X. (2023).
+Robust estimation and inference for expected shortfall regression with many
+regressors.
+\emph{Journal of the Royal Statistical Society Series B: Statistical Methodology},
+85(4), 1223--1246.
+}
+\seealso{
+\code{\link{lesreg.huber}},
+\code{\link{lesreg.huber.fit}},
+\code{\link{summary.lesreg}}
 }
