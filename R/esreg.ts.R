@@ -45,7 +45,8 @@
 #'   whereas method \code{2} uses a kernel-density based numerical
 #'   integration.
 #' @param ini_spec logical. If \code{TRUE}, sieve-based initial values are used
-#'   for optimization. If \code{FALSE}, random initial values are used.
+#'   for optimization, and \code{qmodel} and \code{emodel} must specify the
+#'   same model. If \code{FALSE}, random initial values are used.
 #' @param order positive integer giving the sieve order used when
 #'   \code{ini_spec = TRUE}. If \code{NULL}, it is set to
 #'   \code{round(log(length(y)))}.
@@ -486,6 +487,10 @@ esreg.ts <- function(y,
   }
   if(!emodel %in% names(models)){
     stop("'emodel' must be one of: ", paste(names(models), collapse = ", "))
+  }
+  if(ini_spec && qmodel != emodel){
+    warning("When 'ini_spec = TRUE', 'qmodel' and 'emodel' must be the same.", call. = FALSE)
+    stop("Please use the same model for 'qmodel' and 'emodel' when 'ini_spec = TRUE'.", call. = FALSE)
   }
   qmodel.id <- unname(models[qmodel])
   emodel.id <- unname(models[emodel])

@@ -49,7 +49,8 @@ whereas method \code{2} uses a kernel-density based numerical
 integration.}
 
 \item{ini_spec}{logical. If \code{TRUE}, sieve-based initial values are used
-for optimization. If \code{FALSE}, random initial values are used.}
+for optimization, and \code{qmodel} and \code{emodel} must specify the
+same model. If \code{FALSE}, random initial values are used.}
 
 \item{order}{positive integer giving the sieve order used when
 \code{ini_spec = TRUE}. If \code{NULL}, it is set to
