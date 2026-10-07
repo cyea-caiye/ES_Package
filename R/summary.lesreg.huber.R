@@ -125,7 +125,7 @@ summary.lesreg.huber <- function(object, rob = 1, gamma = NULL, covariance = FAL
   Y <- object$y.fit
   tau <- object$tau
   beta_hat <- object$beta.hat
-  theta_hat <- object$theta.hat
+  theta_hat <- object$coefficients
   n <- nrow(X)
   p <- length(theta_hat)
   if(p == 0L){

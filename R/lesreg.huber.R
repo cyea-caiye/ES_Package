@@ -278,14 +278,8 @@ lesreg.huber <- function(formula, tau = 0.05, data, subset,
   fit$quantile.fitted <- drop(
     fit$quantile.fitted
   )
-  fit$es.fitted <- drop(
-    fit$es.fitted
-  )
   fit$pseudo.response <- drop(
     fit$pseudo.response
-  )
-  fit$pseudo.residuals <- drop(
-    fit$pseudo.residuals
   )
   fit$response.residuals <- drop(
     fit$response.residuals

@@ -38,10 +38,10 @@ print.lesreg.huber <- function(x, digits = max(3L, getOption("digits") - 3L), ..
     cat("No quantile regression coefficients\n")
   }
   cat("\n")
-  if(length(x$theta.hat)){
+  if(length(x$coefficients)){
     cat("Expected shortfall regression coefficients:\n")
     print.default(
-      format(x$theta.hat, digits = digits),
+      format(x$coefficients, digits = digits),
       print.gap = 2L,
       quote = FALSE
     )
