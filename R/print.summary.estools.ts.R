@@ -1,8 +1,28 @@
-#' @rdname summary.lesreg.ts
-#' @param x an object of class \code{"summary.lesreg.ts"}.
+#' Printing Summaries of Autoregressive Quantile-Expected Shortfall Fits
+#'
+#' @description
+#' \code{print.summary.estools.ts} prints a summary of inference results from
+#' a fitted autoregressive quantile-expected shortfall model.
+#'
+#' @param x an object of class \code{"summary.estools.ts"}.
 #' @param digits number of significant digits used for printing.
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @details
+#' The printed output includes the matched function call, quantile level,
+#' conditional quantile and expected shortfall model specifications,
+#' confidence level, and the inference table for the final weighted expected
+#' shortfall coefficients.
+#'
+#' @return
+#' Invisibly returns \code{x}.
+#'
+#' @seealso
+#' \code{\link{summary.estools.ts}},
+#' \code{\link{estools.ts}}
+#'
 #' @export
-print.summary.lesreg.ts <- function(
+print.summary.estools.ts <- function(
     x,
     digits = max(5L, getOption("digits") - 2L),
     ...){

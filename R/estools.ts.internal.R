@@ -805,7 +805,7 @@ get_ES_value_joint = function(data,theta,emodel,qt0){
 get_design_matrix = function(data, qmodel, order){
   design_mat = NULL
   for(i in 1:order){
-    if(qmodel %in% c(1,4)){
+    if(qmodel %in% c(1,3,4)){
       design_mat = cbind(design_mat, dplyr::lag(abs(data),i))
     }else if (qmodel %in% c(2,5)){
       design_mat = cbind(design_mat,  dplyr::lag(data*(data>=0),i))
@@ -860,6 +860,10 @@ get_sieve_initial = function(data, qmodel, emodel, order,tau){
   beta_0 = as.vector(summary(lm_obj)$coefficients[,'Estimate'])
   theta_0 = beta_0
   theta_0[1] = theta_0[1] - 0.5*max(abs(q_hat))
+  if(qmodel == 3){
+    beta_0 = abs(beta_0)
+    theta_0 = abs(theta_0)
+  }
   return(list(beta_0 = beta_0, theta_0 = theta_0))
 }
 
