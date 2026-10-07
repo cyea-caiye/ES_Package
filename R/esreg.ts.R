@@ -1,7 +1,7 @@
 #' Fitting Autoregressive Quantile-Expected Shortfall Models
 #'
 #' @description
-#' \code{estools.ts} fits autoregressive conditional quantile and expected
+#' \code{esreg.ts} fits autoregressive conditional quantile and expected
 #' shortfall models for time-series data using a weighted two-step estimation
 #' procedure. The conditional quantile is first estimated by nonlinear quantile
 #' regression. An unweighted expected shortfall estimator is then obtained
@@ -9,7 +9,7 @@
 #' shortfall estimator.
 #'
 #' @usage
-#' estools.ts(
+#' esreg.ts(
 #'   y,
 #'   tau = 0.05,
 #'   qmodel = "SAV",
@@ -303,11 +303,11 @@
 #'
 #' Inference for the final weighted expected shortfall estimator is based on
 #' the sandwich variance calculation implemented during the weighted fitting
-#' step. See \code{\link{summary.estools.ts}} for the reported standard
+#' step. See \code{\link{summary.esreg.ts}} for the reported standard
 #' errors, confidence intervals, and p-values.
 #'
 #' @return
-#' An object of class \code{"estools.ts"}. It is a list containing:
+#' An object of class \code{"esreg.ts"}. It is a list containing:
 #' \describe{
 #'   \item{coefficients}{
 #'     estimated coefficients of the final weighted expected shortfall model.
@@ -342,7 +342,7 @@
 #'   \item{VC}{
 #'     sandwich variance quantity returned by the weighted fitting procedure.
 #'     The estimated coefficient covariance matrix used by
-#'     \code{summary.estools.ts} is \code{VC / length(y)}.
+#'     \code{summary.esreg.ts} is \code{VC / length(y)}.
 #'   }
 #'   \item{ci}{
 #'     95 percent confidence intervals for the final weighted expected
@@ -388,7 +388,7 @@
 #'
 #'
 #' @seealso
-#' \code{\link{summary.estools.ts}},
+#' \code{\link{summary.esreg.ts}},
 #' \code{\link{lesreg}}
 #'
 #' @examples
@@ -400,7 +400,7 @@
 #'   )
 #' )
 #'
-#' fit <- estools.ts(
+#' fit <- esreg.ts(
 #'   y,
 #'   tau = 0.1,
 #'   qmodel = "SAV",
@@ -415,7 +415,7 @@
 #' summary(fit)
 #'
 #' @export
-estools.ts <- function(y,
+esreg.ts <- function(y,
                       tau = 0.05,
                       qmodel = "SAV",
                       emodel = qmodel,
@@ -554,6 +554,6 @@ estools.ts <- function(y,
     call = match.call()
   )
 
-  class(fit) <- "estools.ts"
+  class(fit) <- "esreg.ts"
   fit
 }

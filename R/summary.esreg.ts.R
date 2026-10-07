@@ -1,11 +1,11 @@
 #' Summarizing Autoregressive Quantile-Expected Shortfall Fits
 #'
 #' @description
-#' \code{summary.estools.ts} computes inference summaries for the final
+#' \code{summary.esreg.ts} computes inference summaries for the final
 #' weighted expected shortfall estimator returned by
-#' \code{\link{estools.ts}}.
+#' \code{\link{esreg.ts}}.
 #'
-#' @param object an object of class \code{"estools.ts"}.
+#' @param object an object of class \code{"esreg.ts"}.
 #' @param level confidence level for the reported confidence intervals.
 #'   It must be a single number strictly between 0 and 1.
 #' @param covariance logical. If \code{TRUE}, the estimated coefficient
@@ -37,17 +37,17 @@
 #'
 #' The confidence level is controlled by \code{level}. The variance estimator
 #' used during model fitting is determined by \code{covMethod} and
-#' \code{truncationMethod} in \code{\link{estools.ts}}.
+#' \code{truncationMethod} in \code{\link{esreg.ts}}.
 #'
 #' If \code{covariance = TRUE}, the estimated coefficient covariance matrix
 #' and the \code{Sigma_hat} and \code{Omega_hat} components from the weighted
 #' fitting procedure are also returned.
 #'
 #' @return
-#' An object of class \code{"summary.estools.ts"}. It is a list containing:
+#' An object of class \code{"summary.esreg.ts"}. It is a list containing:
 #' \describe{
 #'   \item{call}{
-#'     matched call used to fit the original \code{estools.ts} object.
+#'     matched call used to fit the original \code{esreg.ts} object.
 #'   }
 #'   \item{coefficients}{
 #'     matrix containing the weighted expected shortfall coefficient estimates,
@@ -99,7 +99,7 @@
 #' Quantile-Expected Shortfall Model."
 #'
 #' @seealso
-#' \code{\link{estools.ts}}
+#' \code{\link{esreg.ts}}
 #'
 #' @examples
 #' set.seed(2026)
@@ -110,7 +110,7 @@
 #'   )
 #' )
 #'
-#' fit <- estools.ts(
+#' fit <- esreg.ts(
 #'   y,
 #'   tau = 0.1,
 #'   qmodel = "SAV",
@@ -130,13 +130,13 @@
 #' )
 #'
 #' @export
-summary.estools.ts <- function(object,
+summary.esreg.ts <- function(object,
                               level = 0.95,
                               covariance = FALSE,
                               ...){
 
-  if(!inherits(object, "estools.ts")){
-    stop("'object' must be a estools.ts object")
+  if(!inherits(object, "esreg.ts")){
+    stop("'object' must be a esreg.ts object")
   }
   if(!is.numeric(level) || length(level) != 1L || is.na(level) || level <= 0 || level >= 1){
     stop("'level' must be a single number between 0 and 1")
@@ -185,6 +185,6 @@ summary.estools.ts <- function(object,
     ans$Omega_hat <- object$weighted.fit$Omega
   }
 
-  class(ans) <- "summary.estools.ts"
+  class(ans) <- "summary.esreg.ts"
   ans
 }

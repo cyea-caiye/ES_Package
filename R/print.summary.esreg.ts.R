@@ -1,10 +1,10 @@
 #' Printing Summaries of Autoregressive Quantile-Expected Shortfall Fits
 #'
 #' @description
-#' \code{print.summary.estools.ts} prints a summary of inference results from
+#' \code{print.summary.esreg.ts} prints a summary of inference results from
 #' a fitted autoregressive quantile-expected shortfall model.
 #'
-#' @param x an object of class \code{"summary.estools.ts"}.
+#' @param x an object of class \code{"summary.esreg.ts"}.
 #' @param digits number of significant digits used for printing.
 #' @param ... further arguments passed to or from other methods.
 #'
@@ -18,11 +18,11 @@
 #' Invisibly returns \code{x}.
 #'
 #' @seealso
-#' \code{\link{summary.estools.ts}},
-#' \code{\link{estools.ts}}
+#' \code{\link{summary.esreg.ts}},
+#' \code{\link{esreg.ts}}
 #'
 #' @export
-print.summary.estools.ts <- function(
+print.summary.esreg.ts <- function(
     x,
     digits = max(5L, getOption("digits") - 2L),
     ...){
