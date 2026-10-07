@@ -20,8 +20,8 @@ print.summary.lesreg.highdim <- function(x, ...){
   if(!is.null(x$tau)){
     cat("\nTau:", x$tau, "\n")
   }
-  if(!is.null(x$uppertail)){
-    cat("Tail:", ifelse(x$uppertail, "upper", "lower"), "\n")
+  if(!is.null(x$upperTail)){
+    cat("Tail:", ifelse(x$upperTail, "upper", "lower"), "\n")
   }
   if(!is.null(x$tuning.method)){
     cat("Tuning method:", x$tuning.method, "\n")

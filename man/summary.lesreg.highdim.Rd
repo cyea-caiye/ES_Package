@@ -18,7 +18,7 @@ of a call to \code{\link{lesreg.highdim}}.}
 \describe{
   \item{\code{call}}{the matched call from the fitted model.}
   \item{\code{tau}}{the tail probability used for estimation.}
-  \item{\code{uppertail}}{logical flag indicating whether the upper tail was
+  \item{\code{upperTail}}{logical flag indicating whether the upper tail was
   fitted.}
   \item{\code{tuning.method}}{the tuning parameter selection method used.}
   \item{\code{standardize}}{logical flag indicating whether standardization
