@@ -1,26 +1,4 @@
-#' Printing Summaries of Autoregressive Quantile-Expected Shortfall Fits
-#'
-#' @description
-#' \code{print.summary.esreg.ts} prints a summary of inference results from
-#' a fitted autoregressive quantile-expected shortfall model.
-#'
-#' @param x an object of class \code{"summary.esreg.ts"}.
-#' @param digits number of significant digits used for printing.
-#' @param ... further arguments passed to or from other methods.
-#'
-#' @details
-#' The printed output includes the matched function call, quantile level,
-#' conditional quantile and expected shortfall model specifications,
-#' confidence level, and the inference table for the final weighted expected
-#' shortfall coefficients.
-#'
-#' @return
-#' Invisibly returns \code{x}.
-#'
-#' @seealso
-#' \code{\link{summary.esreg.ts}},
-#' \code{\link{esreg.ts}}
-#'
+#' @rdname summary.esreg.ts
 #' @export
 print.summary.esreg.ts <- function(
     x,

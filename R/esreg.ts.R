@@ -1,12 +1,10 @@
-#' Fitting Autoregressive Quantile-Expected Shortfall Models
+#' Autoregressive Expected Shortfall Regression
 #'
 #' @description
-#' \code{esreg.ts} fits autoregressive conditional quantile and expected
-#' shortfall models for time-series data using a weighted two-step estimation
-#' procedure. The conditional quantile is first estimated by nonlinear quantile
-#' regression. An unweighted expected shortfall estimator is then obtained
-#' using a constructed pseudo-response, followed by a weighted expected
-#' shortfall estimator.
+#' Fits an autoregressive expected shortfall (ES) regression model for a
+#' univariate time series using a two-step regression approach. The function
+#' also fits the corresponding autoregressive quantile regression model, which
+#' is used in the first step of estimation.
 #'
 #' @usage
 #' esreg.ts(
@@ -22,398 +20,231 @@
 #'   order = NULL
 #' )
 #'
-#' @param y a numeric time series.
-#' @param tau quantile level. It must be a single number strictly between
-#'   0 and 1.
-#' @param qmodel autoregressive model used for the conditional quantile.
-#'   Available choices are \code{"SAV"}, \code{"AS"}, \code{"GARCH"},
-#'   \code{"SAV12"}, and \code{"AS12"}.
-#' @param emodel autoregressive model used for the conditional expected
-#'   shortfall. Available choices are \code{"SAV"}, \code{"AS"},
-#'   \code{"GARCH"}, \code{"SAV12"}, and \code{"AS12"}. By default,
-#'   \code{emodel = qmodel}.
-#' @param REP positive integer giving the number of repeated optimization
-#'   steps.
-#' @param MAXITER positive integer giving the maximum number of iterations
-#'   used in each optimization step.
-#' @param covMethod integer specifying the conditional variance estimator used
-#'   for inference. \code{1} uses squared residuals. \code{2} uses the
-#'   conditional variance estimator based on the truncated second moment.
-#' @param truncationMethod integer specifying how the truncated second moment
-#'   is estimated when \code{covMethod = 2}. It must be either \code{1} or
-#'   \code{2}. Method \code{1} uses the empirical truncated second moment,
-#'   whereas method \code{2} uses a kernel-density based numerical
-#'   integration.
-#' @param ini_spec logical. If \code{TRUE}, sieve-based initial values are used
-#'   for optimization, and \code{qmodel} and \code{emodel} must specify the
-#'   same model. If \code{FALSE}, random initial values are used.
-#' @param order positive integer giving the sieve order used when
+#' @param y a numeric vector representing a univariate time series.
+#' @param tau the quantile level associated with the ES to be estimated. This
+#'   must be a single number strictly between 0 and 1.
+#' @param qmodel character string specifying the autoregressive model for the
+#'   conditional quantile. Available choices are \code{"SAV"}, \code{"AS"},
+#'   \code{"GARCH"}, \code{"SAV12"}, and \code{"AS12"}.
+#' @param emodel character string specifying the autoregressive model for the
+#'   conditional expected shortfall. Available choices are \code{"SAV"},
+#'   \code{"AS"}, \code{"GARCH"}, \code{"SAV12"}, and \code{"AS12"}.
+#'   By default, \code{emodel = qmodel}. If \code{ini_spec = TRUE},
+#'   \code{qmodel} and \code{emodel} must be the same.
+#' @param REP positive integer specifying the number of repetitions used in
+#'   the optimization procedure.
+#' @param MAXITER positive integer specifying the maximum number of iterations
+#'   for each optimization step.
+#' @param covMethod integer specifying the method used for conditional
+#'   variance estimation. \code{1} uses squared residuals and \code{2} uses
+#'   an estimator based on the truncated second moment.
+#' @param truncationMethod integer specifying the method used to estimate the
+#'   truncated second moment. \code{1} uses the empirical truncated second
+#'   moment and \code{2} uses a kernel-density-based numerical approximation.
+#' @param ini_spec logical. If \code{FALSE}, random initial values are used in
+#'   numerical optimization. If \code{TRUE}, sieve-based initial values are
+#'   used, and \code{qmodel} and \code{emodel} must specify the same model.
+#' @param order positive integer specifying the sieve order when
 #'   \code{ini_spec = TRUE}. If \code{NULL}, it is set to
 #'   \code{round(log(length(y)))}.
 #'
 #' @details
-#' Let \eqn{q_t(\beta)} and \eqn{e_t(\theta)} denote the conditional quantile
-#' and conditional expected shortfall functions, respectively. The current
-#' implementation provides the following autoregressive specifications.
+#' Let \eqn{e_t(\boldsymbol{\theta})} denote the conditional expected
+#' shortfall at time \eqn{t}. The argument \code{emodel} selects its
+#' autoregressive specification from the following models.
 #'
-#' For \code{"SAV"}, the conditional quantile recursion is
+#' Define
+#' \eqn{Y_t^+ = Y_t\mathbf{1}(Y_t \geq 0)} and
+#' \eqn{Y_t^- = Y_t\mathbf{1}(Y_t < 0)}.
 #'
+#' For \code{"SAV"}, the symmetric absolute value specification is
 #' \deqn{
-#' q_t(\beta)
+#' e_t(\boldsymbol{\theta})
 #' =
-#' \beta_0
-#' +
-#' \beta_1 q_{t-1}(\beta)
-#' +
-#' \beta_2 |Y_{t-1}|,
+#' \theta_0 + \theta_1 e_{t-1}(\boldsymbol{\theta})
+#' + \theta_2 |Y_{t-1}|.
 #' }
 #'
-#' and the conditional expected shortfall recursion is
-#'
+#' For \code{"AS"}, the asymmetric slope specification is
 #' \deqn{
-#' e_t(\theta)
+#' e_t(\boldsymbol{\theta})
 #' =
-#' \theta_0
-#' +
-#' \theta_1 e_{t-1}(\theta)
-#' +
-#' \theta_2 |Y_{t-1}|.
+#' \theta_0 + \theta_1 e_{t-1}(\boldsymbol{\theta})
+#' + \theta_2 Y_{t-1}^+ - \theta_3 Y_{t-1}^-.
 #' }
 #'
-#' For \code{"AS"}, the conditional quantile recursion implemented in the
-#' package is
-#'
+#' For \code{"GARCH"}, the specification is
 #' \deqn{
-#' q_t(\beta)
-#' =
-#' \beta_0
-#' +
-#' \beta_1 q_{t-1}(\beta)
-#' +
-#' \beta_2 Y_{t-1} 1(Y_{t-1}>0)
-#' -
-#' \beta_3 Y_{t-1} 1(Y_{t-1}<0),
-#' }
-#'
-#' and the conditional expected shortfall recursion is
-#'
-#' \deqn{
-#' e_t(\theta)
-#' =
-#' \theta_0
-#' +
-#' \theta_1 e_{t-1}(\theta)
-#' +
-#' \theta_2 Y_{t-1} 1(Y_{t-1}>0)
-#' -
-#' \theta_3 Y_{t-1} 1(Y_{t-1}<0).
-#' }
-#'
-#' For \code{"GARCH"}, the conditional quantile recursion is
-#'
-#' \deqn{
-#' q_t(\beta)
+#' e_t(\boldsymbol{\theta})
 #' =
 #' -\sqrt{
-#' \beta_0
-#' +
-#' \beta_1 q_{t-1}^2(\beta)
-#' +
-#' \beta_2 Y_{t-1}^2
-#' },
-#' }
-#'
-#' and the conditional expected shortfall recursion is
-#'
-#' \deqn{
-#' e_t(\theta)
-#' =
-#' -\sqrt{
-#' \theta_0
-#' +
-#' \theta_1 e_{t-1}^2(\theta)
-#' +
-#' \theta_2 Y_{t-1}^2
+#' \theta_0 + \theta_1 e_{t-1}^2(\boldsymbol{\theta})
+#' + \theta_2 Y_{t-1}^2
 #' }.
 #' }
 #'
-#' For \code{"SAV12"}, the conditional quantile recursion implemented in the
-#' package is
-#'
+#' For \code{"SAV12"}, the lag-two symmetric absolute value specification is
 #' \deqn{
-#' q_t(\beta)
+#' e_t(\boldsymbol{\theta})
 #' =
-#' \beta_0
-#' +
-#' \beta_1 q_{t-1}(\beta)
-#' +
-#' \beta_2 |Y_{t-1}|
-#' +
-#' \beta_3 |Y_{t-2}|,
+#' \theta_0 + \theta_1 e_{t-1}(\boldsymbol{\theta})
+#' + \theta_2 |Y_{t-1}| + \theta_3 |Y_{t-2}|.
 #' }
 #'
-#' and the conditional expected shortfall recursion is
-#'
+#' For \code{"AS12"}, the lag-two asymmetric slope specification is
 #' \deqn{
-#' e_t(\theta)
+#' e_t(\boldsymbol{\theta})
 #' =
-#' \theta_0
-#' +
-#' \theta_1 e_{t-1}(\theta)
-#' +
-#' \theta_2 |Y_{t-1}|
-#' +
-#' \theta_3 |Y_{t-2}|.
+#' \theta_0 + \theta_1 e_{t-1}(\boldsymbol{\theta})
+#' + \theta_2 Y_{t-1}^+ - \theta_3 Y_{t-1}^-
+#' + \theta_4 Y_{t-2}^+ - \theta_5 Y_{t-2}^-.
 #' }
 #'
-#' For \code{"AS12"}, the conditional quantile recursion implemented in the
-#' package is
+#' The conditional quantile \eqn{q_t(\boldsymbol{\beta})} uses the same set
+#' of autoregressive specifications, with
+#' \eqn{e_t(\boldsymbol{\theta})} and \eqn{\boldsymbol{\theta}} replaced by
+#' \eqn{q_t(\boldsymbol{\beta})} and \eqn{\boldsymbol{\beta}},
+#' respectively. The quantile and expected shortfall specifications are
+#' selected by \code{qmodel} and \code{emodel}.
 #'
+#' When \code{ini_spec = FALSE}, the conditional quantile and expected
+#' shortfall may use different autoregressive specifications. When
+#' \code{ini_spec = TRUE}, \code{qmodel} and \code{emodel} must specify the
+#' same model.
+#'
+#' @section Method:
+#' The function follows the same two-step expected shortfall regression
+#' principle described in \code{\link{lesreg}}. In the time-series setting,
+#' the conditional quantile and expected shortfall are recursively defined
+#' functions of their parameters and are therefore fitted by numerical
+#' optimization.
+#'
+#' An unweighted autoregressive ES fit is first obtained. Let
+#' \eqn{\hat q_t} and \eqn{\hat e_t} denote the fitted conditional quantile
+#' and unweighted conditional expected shortfall, respectively. The weights
+#' for the final weighted fit are constructed from
 #' \deqn{
-#' q_t(\beta)
-#' =
-#' \beta_0
-#' +
-#' \beta_1 q_{t-1}(\beta)
-#' +
-#' \beta_2 Y_{t-1} 1(Y_{t-1}>0)
-#' -
-#' \beta_3 Y_{t-1} 1(Y_{t-1}<0)
-#' +
-#' \beta_4 Y_{t-2} 1(Y_{t-2}>0)
-#' -
-#' \beta_5 Y_{t-2} 1(Y_{t-2}<0),
+#' w_t = (\hat q_t - \hat e_t)^{-2}.
 #' }
+#' The final ES coefficients are then obtained from the corresponding weighted
+#' autoregressive ES fit.
 #'
-#' and the conditional expected shortfall recursion is
-#'
-#' \deqn{
-#' e_t(\theta)
-#' =
-#' \theta_0
-#' +
-#' \theta_1 e_{t-1}(\theta)
-#' +
-#' \theta_2 Y_{t-1} 1(Y_{t-1}>0)
-#' -
-#' \theta_3 Y_{t-1} 1(Y_{t-1}<0)
-#' +
-#' \theta_4 Y_{t-2} 1(Y_{t-2}>0)
-#' -
-#' \theta_5 Y_{t-2} 1(Y_{t-2}<0).
-#' }
-#'
-#' The estimation procedure follows the weighted two-step autoregressive
-#' expected shortfall regression procedure. Define
-#'
-#' \deqn{
-#' S_0(\beta,\theta;Y_t,X_t)
-#' =
-#' e_t(\theta)
-#' -
-#' q_t(\beta)
-#' -
-#' \frac{
-#' 1\{Y_t \leq q_t(\beta)\}
-#' \{Y_t-q_t(\beta)\}
-#' }{\tau}.
-#' }
-#'
-#' In the first step, the conditional quantile parameter is estimated from
-#'
-#' \deqn{
-#' \widehat{\beta}_T
-#' \in
-#' \arg\min_{\beta \in B}
-#' \frac{1}{T}
-#' \sum_{t=1}^{T}
-#' \rho_{\tau}
-#' \{Y_t-q_t(\beta)\},
-#' }
-#'
-#' where
-#'
-#' \deqn{
-#' \rho_{\tau}(u)
-#' =
-#' u[\tau-1\{u\leq0\}].
-#' }
-#'
-#' Given \eqn{\widehat{\beta}_T}, the unweighted expected shortfall estimator
-#' is obtained from
-#'
-#' \deqn{
-#' \widehat{\theta}_T
-#' \in
-#' \arg\min_{\theta \in \Theta}
-#' \frac{1}{2T}
-#' \sum_{t=1}^{T}
-#' S_0^2(
-#' \widehat{\beta}_T,
-#' \theta;
-#' Y_t,
-#' X_t).
-#' }
-#'
-#' Equivalently, this is a nonlinear least-squares problem with the
-#' pseudo-response
-#'
-#' \deqn{
-#' q_t(\widehat{\beta}_T)
-#' +
-#' \frac{
-#' 1\{Y_t \leq q_t(\widehat{\beta}_T)\}
-#' \{Y_t-q_t(\widehat{\beta}_T)\}
-#' }{\tau}.
-#' }
-#'
-#' The final weighted expected shortfall estimator is
-#'
-#' \deqn{
-#' \widehat{\theta}_T^W
-#' \in
-#' \arg\min_{\theta \in \Theta}
-#' \frac{1}{2T}
-#' \sum_{t=1}^{T}
-#' \frac{
-#' S_0^2(
-#' \widehat{\beta}_T,
-#' \theta;
-#' Y_t,
-#' X_t)
-#' }{
-#' \{
-#' q_t(\widehat{\beta}_T)
-#' -
-#' e_t(\widehat{\theta}_T)
-#' \}^2
-#' }.
-#' }
-#'
-#' The implementation constructs the weights from the fitted conditional
-#' quantile and the fitted unweighted expected shortfall. Very small values of
-#' their difference are stabilized internally before the inverse-square
-#' weights are computed.
-#'
-#' When \code{ini_spec = FALSE}, random initial parameter vectors are used in
-#' the optimization. When \code{ini_spec = TRUE}, sieve-based initial values
-#' are used, with the sieve order controlled by \code{order}.
-#'
-#' The numerical optimization uses \code{\link[stats]{optim}} with
-#' L-BFGS-B and Nelder-Mead steps.
-#'
-#' Inference for the final weighted expected shortfall estimator is based on
-#' the sandwich variance calculation implemented during the weighted fitting
-#' step. See \code{\link{summary.esreg.ts}} for the reported standard
-#' errors, confidence intervals, and p-values.
+#' If \code{ini_spec = FALSE}, random initial values are used in numerical
+#' optimization. If \code{ini_spec = TRUE}, sieve-based initial values are
+#' used. In this case, the conditional quantile and expected shortfall must
+#' have the same autoregressive specification, and the sieve order is
+#' controlled by \code{order}.
 #'
 #' @return
-#' An object of class \code{"esreg.ts"}. It is a list containing:
+#' \code{esreg.ts} returns an object of class \code{"esreg.ts"}.
+#' The functions \code{\link{summary.esreg.ts}} and
+#' \code{\link{print.esreg.ts}} can be used to summarize and print the fitted
+#' model.
+#'
+#' An object of class \code{"esreg.ts"} is a list containing at least the
+#' following components:
 #' \describe{
-#'   \item{coefficients}{
-#'     estimated coefficients of the final weighted expected shortfall model.
-#'   }
-#'   \item{beta.hat}{
-#'     estimated coefficients of the conditional quantile model.
-#'   }
-#'   \item{theta.unweighted}{
-#'     estimated coefficients from the unweighted expected shortfall fit.
-#'   }
-#'   \item{quantile.fitted}{
-#'     fitted conditional quantile values.
-#'   }
-#'   \item{fitted.values}{
-#'     fitted conditional expected shortfall values from the final weighted
-#'     fit.
-#'   }
-#'   \item{residuals}{
-#'     residuals from the pseudo-response regression in the final weighted
-#'     expected shortfall fit.
-#'   }
-#'   \item{response.residuals}{
-#'     observed responses minus the fitted conditional expected shortfall
-#'     values.
-#'   }
-#'   \item{pseudo.response}{
-#'     pseudo-response used for expected shortfall estimation.
-#'   }
-#'   \item{weights}{
-#'     weights used in the final weighted expected shortfall fit.
-#'   }
-#'   \item{VC}{
-#'     sandwich variance quantity returned by the weighted fitting procedure.
-#'     The estimated coefficient covariance matrix used by
-#'     \code{summary.esreg.ts} is \code{VC / length(y)}.
-#'   }
-#'   \item{ci}{
-#'     95 percent confidence intervals for the final weighted expected
-#'     shortfall coefficients computed during model fitting.
-#'   }
-#'   \item{tau}{
-#'     quantile level used for estimation.
-#'   }
-#'   \item{qmodel}{
-#'     autoregressive model used for the conditional quantile.
-#'   }
-#'   \item{emodel}{
-#'     autoregressive model used for the conditional expected shortfall.
-#'   }
-#'   \item{REP}{
-#'     number of repeated optimization steps.
-#'   }
-#'   \item{MAXITER}{
-#'     maximum number of iterations used in each optimization step.
-#'   }
-#'   \item{covMethod}{
-#'     conditional variance estimation method used for inference.
-#'   }
-#'   \item{truncationMethod}{
-#'     truncated-second-moment estimation method used for inference.
-#'   }
-#'   \item{ini_spec}{
-#'     logical flag indicating whether sieve-based initial values were used.
-#'   }
-#'   \item{order}{
-#'     sieve order used when applicable.
-#'   }
-#'   \item{unweighted.fit}{
-#'     detailed output from the unweighted expected shortfall fitting step.
-#'   }
-#'   \item{weighted.fit}{
-#'     detailed output from the weighted expected shortfall fitting step.
-#'   }
-#'   \item{call}{
-#'     matched function call.
-#'   }
+#'   \item{\code{coefficients}}{estimated coefficients from the final weighted
+#'   expected shortfall regression fit.}
+#'   \item{\code{beta.hat}}{estimated coefficients from the first-step
+#'   conditional quantile regression fit.}
+#'   \item{\code{theta.hat}}{estimated coefficients from the final weighted
+#'   expected shortfall regression fit.}
+#'   \item{\code{theta.unweighted}}{estimated coefficients from the unweighted
+#'   expected shortfall regression fit.}
+#'   \item{\code{quantile.fitted}}{fitted conditional quantile values.}
+#'   \item{\code{es.fitted}}{fitted conditional expected shortfall values from
+#'   the final weighted fit.}
+#'   \item{\code{fitted.values}}{fitted conditional expected shortfall values
+#'   from the final weighted fit.}
+#'   \item{\code{residuals}}{residuals from the final weighted expected
+#'   shortfall regression fit.}
+#'   \item{\code{response.residuals}}{the observed response minus the fitted
+#'   conditional expected shortfall values.}
+#'   \item{\code{pseudo.response}}{the pseudo-response used for expected
+#'   shortfall estimation.}
+#'   \item{\code{weights}}{weights used in the final weighted expected
+#'   shortfall regression fit.}
+#'   \item{\code{VC}}{the estimated sandwich matrix used for inference on the
+#'   weighted expected shortfall coefficients.}
+#'   \item{\code{ci}}{confidence intervals computed during model fitting.}
+#'   \item{\code{tau}}{the quantile level used for estimation.}
+#'   \item{\code{qmodel}}{the autoregressive specification used for the
+#'   conditional quantile.}
+#'   \item{\code{emodel}}{the autoregressive specification used for the
+#'   conditional expected shortfall.}
+#'   \item{\code{REP}}{the number of optimization repetitions used.}
+#'   \item{\code{MAXITER}}{the maximum number of iterations used in each
+#'   optimization step.}
+#'   \item{\code{covMethod}}{the conditional variance estimation method used.}
+#'   \item{\code{truncationMethod}}{the truncated second-moment estimation
+#'   method used.}
+#'   \item{\code{ini_spec}}{logical flag indicating whether sieve-based
+#'   initial values were used.}
+#'   \item{\code{order}}{the sieve order used when applicable.}
+#'   \item{\code{unweighted.fit}}{the internal unweighted expected shortfall
+#'   fit.}
+#'   \item{\code{weighted.fit}}{the internal weighted expected shortfall fit.}
+#'   \item{\code{call}}{the call that produced the fitted object.}
 #' }
 #'
-#'
 #' @seealso
-#' \code{\link{summary.esreg.ts}},
-#' \code{\link{lesreg}}
+#' \code{\link{summary.esreg.ts}}, \code{\link{lesreg}}
 #'
 #' @examples
 #' set.seed(2026)
-#' y <- as.numeric(
-#'   stats::arima.sim(
-#'     model = list(ar = 0.3),
-#'     n = 300
-#'   )
+#' T <- 5000
+#' tau <- 0.1
+#' alpha <- c(0.45, 0.65, -0.25, -0.35, 0.8, 0.35, 0.25)
+#'
+#' y <- numeric(T)
+#' f <- numeric(T)
+#' f[1] <- alpha[1] / (1 - alpha[2])
+#' y[1] <- f[1] + alpha[5] * rnorm(1)
+#'
+#' for(t in 2:T){
+#'   y.pos <- y[t - 1] * (y[t - 1] >= 0)
+#'   y.neg <- y[t - 1] * (y[t - 1] < 0)
+#'   f[t] <- alpha[1] + alpha[2] * f[t - 1] +
+#'     alpha[3] * y.pos - alpha[4] * y.neg
+#'   scale.t <- alpha[5] + alpha[6] * y.pos - alpha[7] * y.neg
+#'   y[t] <- f[t] + scale.t * rnorm(1)
+#' }
+#'
+#' es.eta <- -stats::dnorm(stats::qnorm(tau)) / tau
+#' theta.true <- c(
+#'   alpha[1] + (1 - alpha[2]) * alpha[5] * es.eta,
+#'   alpha[2],
+#'   alpha[3] + alpha[6] * es.eta,
+#'   alpha[4] + alpha[7] * es.eta,
+#'   -alpha[2] * alpha[6] * es.eta,
+#'   -alpha[2] * alpha[7] * es.eta
 #' )
 #'
+#' ## Fit the model using random initial values
 #' fit <- esreg.ts(
-#'   y,
-#'   tau = 0.1,
-#'   qmodel = "SAV",
-#'   emodel = "SAV",
-#'   REP = 1,
-#'   MAXITER = 200,
-#'   ini_spec = TRUE,
-#'   order = 3
+#'   y = y,
+#'   tau = tau,
+#'   qmodel = "AS12",
+#'   emodel = "AS12",
+#'   REP = 5,
+#'   MAXITER = 1000,
+#'   ini_spec = FALSE
 #' )
+#' theta.true
+#' fit$coefficients
 #'
-#' fit
-#' summary(fit)
+#' ## Fit the model using sieve-based initial values
+#' fit.ini <- esreg.ts(
+#'   y = y,
+#'   tau = tau,
+#'   qmodel = "AS12",
+#'   emodel = "AS12",
+#'   REP = 5,
+#'   MAXITER = 1000,
+#'   ini_spec = TRUE
+#' )
+#' fit.ini$coefficients
 #'
 #' @export
 esreg.ts <- function(y,
