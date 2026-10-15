@@ -1,0 +1,162 @@
+---
+title: "estools Real Data Application Examples"
+author: "Peiyao Cai"
+date: "2026-10-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Example 1: High Dimensional Expected Shortfall Regression and Inference
+
+In this example, we analyze the National Health and Nutrition Examination Survey data from 2017 to 2020 to investigate the health disparity in cotinine among different ethnicity groups, through the high dimensional expected shortfall(ES) regression proposed in Zhang et al(2025).
+The post-processed dataset contains $n = 2143$ observations and $p = 473$ covariates.
+Some key variables are listed as follows:
+
+1. `cotinine`: response variable corresponding the cotinine level.
+
+2. `raceA`: covariate of interest, indicator of Asian group.
+
+3. `raceB`: covariate of interest, indicator of Black group.
+
+3. `raceH`: covariate of interest, indicator of Hispanic group.
+
+### Step 0: Load Data and Necessary Packages
+
+```{r load}
+library(haven)
+library(quantreg)
+library(xtable)
+library(survey)
+library(conquer)
+library(ggplot2)
+library(ggpubr)
+library(estools)
+
+design_matrix = read.csv(paste0('highD.csv'))
+y <- design_matrix[,"cotinine"]
+x <- subset(design_matrix,select = -c(cotinine))#,overnight2,mental2
+x <- x[,-grep("HSQ*",colnames(x))]
+x <- as.matrix(x)
+p <- ncol(x)
+n <- nrow(x)
+```
+
+
+### Step 1: Define the Function to Perform High Dimensional ES Regression and Inference
+```{r function}
+res <- function(alpha){
+  set.seed(1)
+  res_est <- lesreg.highdim(x = x, y = y, alpha = alpha, upperTail = TRUE, tuning.method = 'CV',
+                            standardize = TRUE)
+
+  ## Asian v.s. White ##
+  set.seed(1)
+  res_inf1 <- lesreg.highdim.inference(x = x, y = y, alpha = alpha, col = 1, res_est = res_est,
+                                       standardize = TRUE, variance.method = 'RCV', upperTail = TRUE)
+  theta_1_debias <- res_inf1$theta_debias
+  CI1 <- res_inf1$Conf.int
+
+  ## Black v.s. White ##
+  set.seed(1)
+  res_inf2 <- lesreg.highdim.inference(x = x, y = y, alpha = alpha, col = 2, res_est = res_est,
+                                       standardize = TRUE, variance.method = 'RCV', upperTail = TRUE)
+  theta_2_debias <- res_inf2$theta_debias
+  CI2 = res_inf2$Conf.int
+
+  ## Hispanic v.s. White ##
+  set.seed(1)
+  res_inf3 <- lesreg.highdim.inference(x = x, y = y, alpha = alpha, col = 3, res_est = res_est,
+                                       standardize = TRUE, variance.method = 'RCV', upperTail = TRUE)
+  theta_3_debias <- res_inf3$theta_debias
+  CI3 <- res_inf3$Conf.int
+
+  ####Summary of Results
+  return(list(mean=c(theta_1_debias,theta_2_debias,theta_3_debias),
+              lower=c(CI1[1],CI2[1],CI3[1]),
+              upper=c(CI1[2],CI2[2],CI3[2]),
+              theta_hat = res_est$theta_hat[1:3],
+              beta_hat = res_est$beta_hat[1:3]
+  ))
+}
+```
+
+
+### Step 2: Perform Regression and Inference
+```{r, eval=FALSE}
+for(tau in seq(from = 0.1, to = 0.3, by = 0.05)){
+  res_tau <- res(tau)
+  saveRDS(res_tau, file = paste0('highdim_res/tau_', tau, '.rds'))
+}
+
+```
+
+
+### Step 3: Results Analysis and Visualization
+```{r analysis}
+results <- data.frame()
+for(tau in seq(from = 0.1, to = 0.3, by = 0.05)){
+  res_tau <- readRDS(paste0('highdim_res/tau_', tau, '.rds'))
+  subtab_tau <- cbind(res_tau$mean, res_tau$lower, res_tau$upper, res_tau$theta_hat, res_tau$beta_hat)
+  results <- rbind(results, subtab_tau)
+}
+colnames(results) <- c('mean', 'lower', 'upper', 'theta_hat', 'beta_hat')
+
+results$ci_group <- rep(c("Asian", "Black", "Hispanic"), times = 5)
+results$x <- rep(c(0.9,0.85,0.8,0.75,0.7), each = 3)
+
+## plot ##
+#pdf(file=paste0('highdim_res/CI_results.pdf'),width=8, height=4)
+p1 <- ggplot(results, aes(x = x, y = mean, group = ci_group, color = ci_group)) +
+  geom_point(aes(shape=ci_group),position = position_dodge(width=0.01),size=4) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.01,size=1, position = position_dodge(width=0.01)) +
+  scale_color_manual(values = c("Asian" = "red", "Black" = "black", "Hispanic" = "grey")) +
+  scale_shape_manual(values = c(18, 17, 16)) +
+  theme_minimal() +
+  geom_abline(slope=0,intercept=0,linetype="dashed") +
+  labs(x = "Quantile level", y = "Disparity in Cotinine (ng/ml)",
+       color = "Race",shape="Race")
+#dev.off()
+
+p1
+```
+
+
+
+### Step 4: Comparison with Desparsified Lasso
+```{r lasso, echo=TRUE}
+
+library(desla)
+H <- c(1,2,3)
+despar <- desla(x,y,H)
+ci_lasso <- despar$intervals
+ci_lasso <- data.frame(ci_lasso)
+ci_lasso$ci_group <- c("Asian", "Black", "Hispanic")
+
+```
+
+
+```{r visual}
+####### Lasso plot #####
+#pdf(file=paste0('highdim_res/CI_LASSO.pdf'),width=8, height=4)
+# Create a numeric variable for x-axis positioning
+p2 <- ggplot(ci_lasso, aes(x = ci_group, y = bhat, color = ci_group)) +
+  geom_point(aes(shape=ci_group),size=3) +
+  geom_errorbar(aes(ymin = upper.0.05, ymax = lower.0.05), width = 0.05,size=1) +
+  scale_color_manual(values = c("Asian" = "red", "Black" = "black", "Hispanic" = "grey")) +
+  scale_shape_manual(values = c(18, 17, 16)) +
+  theme_minimal() +
+  geom_abline(slope=0,intercept=0,linetype="dashed") +
+  labs(x = "Race", y = "Disparity in Cotinine (ng/ml)",
+       color = "Race",shape="Race") +
+  theme(legend.position = "none") +
+  ylim(c(-214.1389,247.6286))
+#dev.off()
+
+p2
+```
+
+
+
