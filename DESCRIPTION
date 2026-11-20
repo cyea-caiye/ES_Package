@@ -28,7 +28,8 @@ Description: Comprehensive estimation and inference methods for conditional expe
         (<doi:10.1080/01621459.2024.2448860>), 
         robust expected shortfall regression for heavy-tailed responses 
         (<doi:10.1093/jrsssb/qkad063>), 
-        and autoregressive expected shortfall models for dynamic time series.
+        autoregressive expected shortfall models for dynamic time series (<doi:10.48550/arXiv.2610.25730>), 
+        and the linear expected shortfall regression approach based on optimization (<doi:10.1080/01621459.2026.2750972>).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -40,6 +41,9 @@ Imports:
     dplyr,
     janitor,
     magrittr,
+    splines,
+    FNN,
+    fastkmedoids,
     Rcpp
 LinkingTo:
     Rcpp,

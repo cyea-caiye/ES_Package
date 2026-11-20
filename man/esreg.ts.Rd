@@ -110,9 +110,9 @@ following components:
 }
 \description{
 Fits an autoregressive expected shortfall (ES) regression model for a
-univariate time series using a two-step regression approach. The function
-also fits the corresponding autoregressive quantile regression model, which
-is used in the first step of estimation.
+univariate time series using a two-step regression approach in Cai et al (2026).
+The function also fits the corresponding autoregressive quantile regression model,
+which is used in the first step of estimation.
 }
 \details{
 Let \eqn{e_t(\boldsymbol{\theta})} denote the conditional expected
@@ -258,6 +258,11 @@ fit.ini <- esreg.ts(
 )
 fit.ini$coefficients
 
+}
+\references{
+Cai, P., Tan, K. M., and He, X. (2026).
+Estimation and Inference for the Joint Autoregressive Quantile-Expected Shortfall Model.
+\emph{arXiv preprint}, arXiv:2610.25730.
 }
 \seealso{
 \code{\link{summary.esreg.ts}}, \code{\link{lesreg}}
