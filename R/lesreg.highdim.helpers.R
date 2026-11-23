@@ -1,9 +1,9 @@
-.lesreg_hd_Z_beta <- function(data, beta, alpha, beta_0){
+.lesreg_hd_Z_beta <- function(data, beta, tau, beta_0){
   yi <- data[1]
   xi <- data[-1]
   res <- yi - xi %*% beta - beta_0
   if(res <= 0){
-    return(res / alpha + xi %*% beta + beta_0)
+    return(res / tau + xi %*% beta + beta_0)
   } else {
     return(xi %*% beta + beta_0)
   }
@@ -67,7 +67,7 @@
   return(list(lambda_select = lambda_select, model_select = model_select))
 }
 
-.lesreg_hd_variance_estimation <- function(d_x_1, d_x_2, y_1, y_2, alpha, col = 1, standardize = TRUE){
+.lesreg_hd_variance_estimation <- function(d_x_1, d_x_2, y_1, y_2, tau, col = 1, standardize = TRUE){
   n <- nrow(d_x_1) + nrow(d_x_2)
   p <- ncol(d_x_1)
   # Remove the columns that are constant
@@ -85,13 +85,13 @@
   # step 1
   quan_model = conquer::conquer.cv.reg(d_x_1, y_1,
                                        #lambda=0.03,
-                                       tau = alpha,
-                                       h = max(0.05, sqrt(alpha * (1 - alpha)) * (log(p) / n)^(1 / 4)))
+                                       tau = tau,
+                                       h = max(0.05, sqrt(tau * (1 - tau)) * (log(p) / n)^(1 / 4)))
   beta_hat = quan_model$coeff.min[-1]
   beta0 = quan_model$coeff.min[1]
   sq = sum(beta_hat != 0)
   # step 2
-  Z_2step = apply(cbind(y_1, d_x_1), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, alpha = alpha, beta_0 = beta0)
+  Z_2step = apply(cbind(y_1, d_x_1), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, tau = tau, beta_0 = beta0)
   ######### CV #########
   ##perform k-fold cross-validation to find optimal lambda value
   cv_model <- glmnet::cv.glmnet(d_x_1, Z_2step, standardize = standardize)
@@ -115,15 +115,15 @@
   # step 1
   if(sq == 0){
     epsilon_hat = y_2 - beta0
-    Z_2step = beta0 + ifelse(epsilon_hat < 0, epsilon_hat, 0) / alpha
+    Z_2step = beta0 + ifelse(epsilon_hat < 0, epsilon_hat, 0) / tau
   } else{
     dx2_short = matrix(d_x_2[, beta_hat != 0], ncol = sq)
-    quan_model <- conquer::conquer(dx2_short, y_2, tau = alpha)
+    quan_model <- conquer::conquer(dx2_short, y_2, tau = tau)
     beta_hat = quan_model$coeff[-1]
     beta0 = quan_model$coeff[1]
     #epsilon_hat = y_2 - dx2_short%*%beta_hat - beta0
     #epsilon_minus = ifelse(epsilon_hat<0,epsilon_hat,0)
-    Z_2step = apply(cbind(y_2, dx2_short), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, alpha = alpha, beta_0 = beta0)
+    Z_2step = apply(cbind(y_2, dx2_short), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, tau = tau, beta_0 = beta0)
   }
   # step 2
   if(se == 0){
@@ -149,7 +149,7 @@
   #results
   s2 = nrow(d_x_2)
   sigma_w_hat_square_1 = sum(w_hat^2) / (s2 - sm - 1)
-  sigma_s_hat_1 = alpha^2 * t(w_hat^2) %*% ((res3)^2) / (s2 - sm - sq - se - 3)
+  sigma_s_hat_1 = tau^2 * t(w_hat^2) %*% ((res3)^2) / (s2 - sm - sq - se - 3)
 
   #######################The other way around#####################
   #######find variables on first half########
@@ -158,13 +158,13 @@
   # step 1
   quan_model = conquer::conquer.cv.reg(d_x_2, y_2,
                                        #lambda=0.03,
-                                       tau = alpha,
-                                       h = max(0.05, sqrt(alpha * (1 - alpha)) * (log(p) / n)^(1 / 4)))
+                                       tau = tau,
+                                       h = max(0.05, sqrt(tau * (1 - tau)) * (log(p) / n)^(1 / 4)))
   beta_hat = quan_model$coeff.min[-1]
   beta0 = quan_model$coeff.min[1]
   sq = sum(beta_hat != 0)
   # step 2
-  Z_2step = apply(cbind(y_2, d_x_2), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, alpha = alpha, beta_0 = beta0)
+  Z_2step = apply(cbind(y_2, d_x_2), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, tau = tau, beta_0 = beta0)
   ######### CV #########
   ##perform k-fold cross-validation to find optimal lambda value
   cv_model <- glmnet::cv.glmnet(d_x_2, Z_2step, standardize = standardize)
@@ -186,15 +186,15 @@
   # step 1
   if(sq == 0){
     epsilon_hat = y_1 - beta0
-    Z_2step = beta0 + ifelse(epsilon_hat < 0, epsilon_hat, 0) / alpha
+    Z_2step = beta0 + ifelse(epsilon_hat < 0, epsilon_hat, 0) / tau
   } else{
     dx1_short = matrix(d_x_1[, beta_hat != 0], ncol = sq)
-    quan_model <- conquer::conquer(dx1_short, y_1, tau = alpha)
+    quan_model <- conquer::conquer(dx1_short, y_1, tau = tau)
     beta_hat = quan_model$coeff[-1]
     beta0 = quan_model$coeff[1]
     #epsilon_hat = y_1 - dx1_short%*%beta_hat - beta0
     #epsilon_minus = ifelse(epsilon_hat<0,epsilon_hat,0)
-    Z_2step = apply(cbind(y_1, dx1_short), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, alpha = alpha, beta_0 = beta0)
+    Z_2step = apply(cbind(y_1, dx1_short), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, tau = tau, beta_0 = beta0)
   }
   # step 2
   if(se == 0){
@@ -218,7 +218,7 @@
   #results
   s1 = nrow(d_x_1)
   sigma_w_hat_square_2 = sum(w_hat^2) / (s1 - sm - 1)
-  sigma_s_hat_2 = alpha^2 * t(w_hat^2) %*% ((res3)^2) / (s1 - sm - sq - se - 3)
+  sigma_s_hat_2 = tau^2 * t(w_hat^2) %*% ((res3)^2) / (s1 - sm - sq - se - 3)
   sigma_w_hat_square = (sigma_w_hat_square_1 + sigma_w_hat_square_2) / 2
   sigma_s_hat = (sigma_s_hat_1 + sigma_s_hat_2) / 2
   #CI_level = 1-(1-conf.level)/2

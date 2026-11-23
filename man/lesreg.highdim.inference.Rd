@@ -7,7 +7,7 @@
 lesreg.highdim.inference(
   x,
   y,
-  alpha,
+  tau,
   col = 1,
   res_est = NULL,
   conf.level = 0.95,
@@ -23,12 +23,12 @@ intercept column.}
 \item{y}{numeric response vector of length \eqn{n}, or a one-column numeric
 matrix.}
 
-\item{alpha}{the quantile level associated with the ES to be estimated. This
+\item{tau}{the quantile level associated with the ES to be estimated. This
 must be a single number strictly between 0 and 1. If
 \code{upperTail = FALSE}, the function performs inference for the
-lower-tail ES associated with quantile level \code{alpha}. If
+lower-tail ES associated with quantile level \code{tau}. If
 \code{upperTail = TRUE}, the function performs inference for the
-upper-tail ES associated with quantile level \code{1 - alpha}. This
+upper-tail ES associated with quantile level \code{1 - tau}. This
 corresponds to \code{tau} in \code{\link{lesreg}}.}
 
 \item{col}{integer specifying the column of \code{x}, and hence the slope
@@ -96,7 +96,7 @@ correct the initial penalized ES coefficient estimator.
 If \code{res_est} is supplied, the first-step quantile regression and
 second-step expected shortfall regression estimates are taken from that
 fitted object. Otherwise, \code{\link{lesreg.highdim}} is called internally
-using \code{x}, \code{y}, \code{alpha}, \code{standardize}, and
+using \code{x}, \code{y}, \code{tau}, \code{standardize}, and
 \code{upperTail}.
 
 Three variance estimation methods are available. The
@@ -118,7 +118,7 @@ n <- 1000
 p <- 100
 x <- matrix(rnorm(n * p), n, p)
 y <- x[, 1] - x[, 2] + rnorm(n)
-fit <- lesreg.highdim(x, y, alpha = 0.05)
+fit <- lesreg.highdim(x, y, tau = 0.05)
 
 ## Conduct statistical inference on the 1st, 2nd, 3rd, 5th and 7th coefficients
 coefs.true <- c(1,-1, 0,0,0)
@@ -128,7 +128,7 @@ cis <- NULL
 for(col in c(1,2,3,5,7)) {
   inf <- lesreg.highdim.inference(
     x, y,
-    alpha = 0.05,
+    tau = 0.05,
     col = col,
     res_est = fit,
     variance.method = "RCV"

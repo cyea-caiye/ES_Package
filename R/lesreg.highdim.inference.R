@@ -10,12 +10,12 @@
 #'   intercept column.
 #' @param y numeric response vector of length \eqn{n}, or a one-column numeric
 #'   matrix.
-#' @param alpha the quantile level associated with the ES to be estimated. This
+#' @param tau the quantile level associated with the ES to be estimated. This
 #'   must be a single number strictly between 0 and 1. If
 #'   \code{upperTail = FALSE}, the function performs inference for the
-#'   lower-tail ES associated with quantile level \code{alpha}. If
+#'   lower-tail ES associated with quantile level \code{tau}. If
 #'   \code{upperTail = TRUE}, the function performs inference for the
-#'   upper-tail ES associated with quantile level \code{1 - alpha}. This
+#'   upper-tail ES associated with quantile level \code{1 - tau}. This
 #'   corresponds to \code{tau} in \code{\link{lesreg}}.
 #' @param col integer specifying the column of \code{x}, and hence the slope
 #'   coefficient, for which inference is performed. This must be an integer
@@ -49,7 +49,7 @@
 #' If \code{res_est} is supplied, the first-step quantile regression and
 #' second-step expected shortfall regression estimates are taken from that
 #' fitted object. Otherwise, \code{\link{lesreg.highdim}} is called internally
-#' using \code{x}, \code{y}, \code{alpha}, \code{standardize}, and
+#' using \code{x}, \code{y}, \code{tau}, \code{standardize}, and
 #' \code{upperTail}.
 #'
 #' Three variance estimation methods are available. The
@@ -103,7 +103,7 @@
 #' p <- 100
 #' x <- matrix(rnorm(n * p), n, p)
 #' y <- x[, 1] - x[, 2] + rnorm(n)
-#' fit <- lesreg.highdim(x, y, alpha = 0.05)
+#' fit <- lesreg.highdim(x, y, tau = 0.05)
 #'
 #' ## Conduct statistical inference on the 1st, 2nd, 3rd, 5th and 7th coefficients
 #' coefs.true <- c(1,-1, 0,0,0)
@@ -113,7 +113,7 @@
 #' for(col in c(1,2,3,5,7)) {
 #'   inf <- lesreg.highdim.inference(
 #'     x, y,
-#'     alpha = 0.05,
+#'     tau = 0.05,
 #'     col = col,
 #'     res_est = fit,
 #'     variance.method = "RCV"
@@ -126,8 +126,11 @@
 #' rownames(res.table) <- c('coef.true', 'coef.debiase', 'ci.low', 'ci.up')
 #' print(res.table)
 #' @export
-lesreg.highdim.inference <- function(x, y, alpha, col = 1, res_est = NULL, conf.level = 0.95, standardize = TRUE,
+lesreg.highdim.inference <- function(x, y, tau, col = 1, res_est = NULL, conf.level = 0.95, standardize = TRUE,
                                variance.method = c("RCV", "refit", "plug-in"), upperTail = FALSE){
+  if(!is.numeric(tau) || length(tau) != 1L || !is.finite(tau) || tau <= 0 || tau >= 1){
+    stop("'tau' must be a single finite number strictly between 0 and 1")
+  }
   variance.method <- match.arg(variance.method)
   if(is.null(n <- nrow(x)))
     stop("'x' must be a matrix")
@@ -143,7 +146,7 @@ lesreg.highdim.inference <- function(x, y, alpha, col = 1, res_est = NULL, conf.
     stop("'upperTail' must be TRUE or FALSE")
   }
   if(is.null(res_est)){
-    res_est <- lesreg.highdim(x, y, alpha = alpha, standardize = standardize, upperTail = upperTail)
+    res_est <- lesreg.highdim(x, y, tau = tau, standardize = standardize, upperTail = upperTail)
   } else{
     upperTail <- res_est$upperTail
   }
@@ -171,12 +174,12 @@ lesreg.highdim.inference <- function(x, y, alpha, col = 1, res_est = NULL, conf.
   ############ Variance estimation using simple plug-in ################
   if(variance.method == "plug-in"){
     sigma_w_hat_square <- sum(w_hat^2) / (n - sm - 1)
-    sigma_s_hat <- alpha^2 * t(w_hat^2) %*% ((resid1)^2) / (n - sm - sq - se - 3)
+    sigma_s_hat <- tau^2 * t(w_hat^2) %*% ((resid1)^2) / (n - sm - sq - se - 3)
     var_plugin <- sigma_s_hat / sigma_w_hat_square^2
-    wid <- sqrt(var_plugin) * stats::qnorm(CI_level) / sqrt(n) / alpha
+    wid <- sqrt(var_plugin) * stats::qnorm(CI_level) / sqrt(n) / tau
   } else if(variance.method == "refit"){
     ################ Variance Estimation using vanilla refit ################
-    Z_2step <- apply(cbind(y_fit, x), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, alpha = alpha, beta_0 = beta0)
+    Z_2step <- apply(cbind(y_fit, x), MARGIN = 1, FUN = .lesreg_hd_Z_beta, beta = beta_hat, tau = tau, beta_0 = beta0)
     if(se == 0){
       res3 <- Z_2step - mean(Z_2step)
     } else{
@@ -192,9 +195,9 @@ lesreg.highdim.inference <- function(x, y, alpha, col = 1, res_est = NULL, conf.
       w_hat <- lm_model$residuals
     }
     sigma_w_hat_square <- sum(w_hat^2) / (n - sm - 1)
-    sigma_s_hat <- alpha^2 * t(w_hat^2) %*% ((res3)^2) / (n - sm - sq - se - 3)
+    sigma_s_hat <- tau^2 * t(w_hat^2) %*% ((res3)^2) / (n - sm - sq - se - 3)
     var_vanilla <- sigma_s_hat / sigma_w_hat_square^2
-    wid <- sqrt(var_vanilla) * stats::qnorm(CI_level) / sqrt(n) / alpha
+    wid <- sqrt(var_vanilla) * stats::qnorm(CI_level) / sqrt(n) / tau
   } else{
     ################ Variance Estimation using RCV ################
     sample_index <- sample(seq_len(nrow(x)), size = ceiling(n / 2))
@@ -202,8 +205,8 @@ lesreg.highdim.inference <- function(x, y, alpha, col = 1, res_est = NULL, conf.
     d_x_2 <- x[-sample_index, ]
     y_1 <- y_fit[sample_index]
     y_2 <- y_fit[-sample_index]
-    var <- .lesreg_hd_variance_estimation(d_x_1, d_x_2, y_1, y_2, alpha, col, standardize = standardize)
-    wid <- sqrt(var) * stats::qnorm(CI_level) / sqrt(n) / alpha
+    var <- .lesreg_hd_variance_estimation(d_x_1, d_x_2, y_1, y_2, tau, col, standardize = standardize)
+    wid <- sqrt(var) * stats::qnorm(CI_level) / sqrt(n) / tau
   }
   theta_debias_fit <- as.numeric(theta_debias_fit)
   wid <- as.numeric(wid)
@@ -216,7 +219,7 @@ lesreg.highdim.inference <- function(x, y, alpha, col = 1, res_est = NULL, conf.
     theta_debias = theta_debias,
     Conf.int = c(theta_debias - wid, theta_debias + wid),
     col = col,
-    tau = alpha,
+    tau = tau,
     upperTail = upperTail,
     tail = if(upperTail) "upper" else "lower",
     conf.level = conf.level,

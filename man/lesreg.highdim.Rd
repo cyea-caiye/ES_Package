@@ -7,7 +7,7 @@
 lesreg.highdim(
   x,
   y,
-  alpha = 0.05,
+  tau = 0.05,
   standardize = TRUE,
   tuning.method = c("CV", "BIC"),
   upperTail = FALSE
@@ -20,11 +20,11 @@ intercept column.}
 \item{y}{numeric response vector of length \eqn{n}, or a one-column numeric
 matrix.}
 
-\item{alpha}{the quantile level associated with the ES to be estimated. This
+\item{tau}{the quantile level associated with the ES to be estimated. This
 must be a single number strictly between 0 and 1. If
 \code{upperTail = FALSE}, the function fits the lower-tail ES associated
-with quantile level \code{alpha}. If \code{upperTail = TRUE}, the function
-fits the upper-tail ES associated with quantile level \code{1 - alpha}.
+with quantile level \code{tau}. If \code{upperTail = TRUE}, the function
+fits the upper-tail ES associated with quantile level \code{1 - tau}.
 This corresponds to \code{tau} in \code{\link{lesreg}}.}
 
 \item{standardize}{logical. If \code{TRUE}, standardization is used in the
@@ -101,7 +101,7 @@ matrix \code{x} should not contain an intercept column. Intercepts for the
 quantile and expected shortfall regressions are estimated separately.
 
 In the first step, a penalized quantile regression is fitted at level
-\code{alpha}. If \code{tuning.method = "CV"}, the tuning parameter is
+\code{tau}. If \code{tuning.method = "CV"}, the tuning parameter is
 selected by cross-validation using
 \code{\link[conquer]{conquer.cv.reg}}. If
 \code{tuning.method = "BIC"}, the tuning parameter is selected using a
@@ -110,7 +110,7 @@ BIC-type criterion based on \code{\link[conquer]{conquer.reg}}.
 Let \eqn{\hat{Q}_i} denote the fitted conditional quantile for the \eqn{i}-th
 observation. The pseudo-response
 \deqn{
-\hat{Z}_i = \hat {Q}_i + \alpha^{-1} \mathbf{1}(Y_i \leq \hat{Q}_i)(Y_i - \hat{Q}_i)
+\hat{Z}_i = \hat {Q}_i + \tau^{-1} \mathbf{1}(Y_i \leq \hat{Q}_i)(Y_i - \hat{Q}_i)
 }
 is then regressed on the same design matrix by penalized least squares using
 \code{\link[glmnet]{glmnet}}. The resulting coefficients estimate the
@@ -129,15 +129,15 @@ x <- matrix(rnorm(n * p), n, p)
 y <- x[, 1] - x[, 2] + rnorm(n)
 
 ## Fit the model with l1 penalties selected by cross-validation in two steps
-fit <- lesreg.highdim(x, y, alpha = 0.05)
+fit <- lesreg.highdim(x, y, tau = 0.05)
 summary(fit)
 
 ## Fit the model with l1 penalties selected by BIC in two steps
-fit.bic <- lesreg.highdim(x, y, alpha = 0.05, tuning.method = "BIC")
+fit.bic <- lesreg.highdim(x, y, tau = 0.05, tuning.method = "BIC")
 summary(fit.bic)
 
 ## Fit the model for upper-tail ES
-fit.upper <- lesreg.highdim(x, y, alpha = 0.05, upperTail = TRUE)
+fit.upper <- lesreg.highdim(x, y, tau = 0.05, upperTail = TRUE)
 summary(fit.upper)
 }
 \references{

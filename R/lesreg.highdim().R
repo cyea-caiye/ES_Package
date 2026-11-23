@@ -10,11 +10,11 @@
 #'   intercept column.
 #' @param y numeric response vector of length \eqn{n}, or a one-column numeric
 #'   matrix.
-#' @param alpha the quantile level associated with the ES to be estimated. This
+#' @param tau the quantile level associated with the ES to be estimated. This
 #'   must be a single number strictly between 0 and 1. If
 #'   \code{upperTail = FALSE}, the function fits the lower-tail ES associated
-#'   with quantile level \code{alpha}. If \code{upperTail = TRUE}, the function
-#'   fits the upper-tail ES associated with quantile level \code{1 - alpha}.
+#'   with quantile level \code{tau}. If \code{upperTail = TRUE}, the function
+#'   fits the upper-tail ES associated with quantile level \code{1 - tau}.
 #'   This corresponds to \code{tau} in \code{\link{lesreg}}.
 #' @param standardize logical. If \code{TRUE}, standardization is used in the
 #'   penalized fitting procedures where supported. The coefficients are
@@ -36,7 +36,7 @@
 #' quantile and expected shortfall regressions are estimated separately.
 #'
 #' In the first step, a penalized quantile regression is fitted at level
-#' \code{alpha}. If \code{tuning.method = "CV"}, the tuning parameter is
+#' \code{tau}. If \code{tuning.method = "CV"}, the tuning parameter is
 #' selected by cross-validation using
 #' \code{\link[conquer]{conquer.cv.reg}}. If
 #' \code{tuning.method = "BIC"}, the tuning parameter is selected using a
@@ -45,7 +45,7 @@
 #' Let \eqn{\hat{Q}_i} denote the fitted conditional quantile for the \eqn{i}-th
 #' observation. The pseudo-response
 #' \deqn{
-#' \hat{Z}_i = \hat {Q}_i + \alpha^{-1} \mathbf{1}(Y_i \leq \hat{Q}_i)(Y_i - \hat{Q}_i)
+#' \hat{Z}_i = \hat {Q}_i + \tau^{-1} \mathbf{1}(Y_i \leq \hat{Q}_i)(Y_i - \hat{Q}_i)
 #' }
 #' is then regressed on the same design matrix by penalized least squares using
 #' \code{\link[glmnet]{glmnet}}. The resulting coefficients estimate the
@@ -122,18 +122,21 @@
 #' y <- x[, 1] - x[, 2] + rnorm(n)
 #'
 #' ## Fit the model with l1 penalties selected by cross-validation in two steps
-#' fit <- lesreg.highdim(x, y, alpha = 0.05)
+#' fit <- lesreg.highdim(x, y, tau = 0.05)
 #' summary(fit)
 #'
 #' ## Fit the model with l1 penalties selected by BIC in two steps
-#' fit.bic <- lesreg.highdim(x, y, alpha = 0.05, tuning.method = "BIC")
+#' fit.bic <- lesreg.highdim(x, y, tau = 0.05, tuning.method = "BIC")
 #' summary(fit.bic)
 #'
 #' ## Fit the model for upper-tail ES
-#' fit.upper <- lesreg.highdim(x, y, alpha = 0.05, upperTail = TRUE)
+#' fit.upper <- lesreg.highdim(x, y, tau = 0.05, upperTail = TRUE)
 #' summary(fit.upper)
 #' @export
-lesreg.highdim <- function(x, y, alpha = 0.05, standardize = TRUE, tuning.method = c("CV", "BIC"), upperTail = FALSE){
+lesreg.highdim <- function(x, y, tau = 0.05, standardize = TRUE, tuning.method = c("CV", "BIC"), upperTail = FALSE){
+  if(!is.numeric(tau) || length(tau) != 1L || !is.finite(tau) || tau <= 0 || tau >= 1){
+    stop("'tau' must be a single finite number strictly between 0 and 1")
+  }
   if(!is.logical(upperTail) || length(upperTail) != 1L || is.na(upperTail)){
     stop("'upperTail' must be TRUE or FALSE")
   }
@@ -152,7 +155,7 @@ lesreg.highdim <- function(x, y, alpha = 0.05, standardize = TRUE, tuning.method
     quant_model_bic <- .lesreg_hd_quantile_bic(
       x,
       y_fit,
-      alpha,
+      tau,
       standardize = standardize
     )
     lambda_beta <- quant_model_bic$lambda_select
@@ -164,7 +167,7 @@ lesreg.highdim <- function(x, y, alpha = 0.05, standardize = TRUE, tuning.method
       MARGIN = 1,
       FUN = .lesreg_hd_Z_beta,
       beta = beta_hat,
-      alpha = alpha,
+      tau = tau,
       beta_0 = beta0
     )
     ES_model <- .lesreg_hd_LS_bic(
@@ -178,8 +181,8 @@ lesreg.highdim <- function(x, y, alpha = 0.05, standardize = TRUE, tuning.method
     quan_model <- conquer::conquer.cv.reg(
       x,
       y_fit,
-      tau = alpha,
-      h = max(0.05, sqrt(alpha * (1 - alpha)) * (log(p) / n)^(1 / 4))
+      tau = tau,
+      h = max(0.05, sqrt(tau * (1 - tau)) * (log(p) / n)^(1 / 4))
     )
     lambda_beta <- quan_model$lambda
     if(is.null(lambda_beta)){
@@ -189,7 +192,7 @@ lesreg.highdim <- function(x, y, alpha = 0.05, standardize = TRUE, tuning.method
     beta0 <- quan_model$coeff.min[1]
     Z_2step <- beta0 + x %*% beta_hat +
       (y_fit - beta0 - x %*% beta_hat) *
-      ifelse(y_fit < beta0 + x %*% beta_hat, 1, 0) / alpha
+      ifelse(y_fit < beta0 + x %*% beta_hat, 1, 0) / tau
     cv_model <- glmnet::cv.glmnet(
       x,
       Z_2step,
@@ -226,7 +229,7 @@ lesreg.highdim <- function(x, y, alpha = 0.05, standardize = TRUE, tuning.method
     resid = resid,
     lambda_beta = lambda_beta,
     lambda_theta = lambda_theta,
-    tau = alpha,
+    tau = tau,
     upperTail = upperTail,
     tail = if(upperTail) "upper" else "lower",
     standardize = standardize,
