@@ -7,8 +7,8 @@
 \method{print}{esreg.ts}(x, digits = max(5L, getOption("digits") - 2L), ...)
 }
 \arguments{
-\item{x}{an object returned from \code{esreg.ts}, representing the fitted
-model.}
+\item{x}{an object of class \code{"esreg.ts"}, usually a result of a
+call to \code{\link{esreg.ts}}.}
 
 \item{digits}{the number of significant digits to use when printing.}
 

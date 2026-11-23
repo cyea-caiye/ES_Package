@@ -30,14 +30,15 @@ matrix and its sandwich components should be returned.}
 \code{summary.esreg.ts} returns an object of class
 \code{"summary.esreg.ts"} containing summary statistics and inference
 results for the fitted autoregressive expected shortfall regression model.
-The documented components are:
+An object of class \code{"summary.esreg.ts"} is a list containing the
+following components:
 \describe{
   \item{\code{coefficients}}{a matrix containing the estimated weighted
   expected shortfall regression coefficients, their standard errors, lower
   and upper confidence limits, and \eqn{p}-values.}
   \item{\code{beta.hat}}{the estimated coefficients from the first-step
   conditional quantile regression fit.}
-  \item{\code{tau}}{the quantile level used for estimation.}
+  \item{\code{tau}}{the tail probability used for estimation.}
   \item{\code{qmodel}}{the autoregressive specification used for the
   conditional quantile.}
   \item{\code{emodel}}{the autoregressive specification used for the
@@ -56,6 +57,7 @@ The documented components are:
   covariance calculation, if \code{covariance = TRUE}.}
   \item{\code{Omega_hat}}{the estimated middle matrix in the sandwich
   covariance calculation, if \code{covariance = TRUE}.}
+  \item{\code{call}}{the call that produced the fitted object.}
 }
 }
 \description{
@@ -85,12 +87,13 @@ T <- 5000
 tau <- 0.1
 alpha <- c(0.45, 0.65, -0.25, -0.35, 0.8, 0.35, 0.25)
 
+## Simulate autoregressive time series data
 y <- numeric(T)
 f <- numeric(T)
 f[1] <- alpha[1] / (1 - alpha[2])
 y[1] <- f[1] + alpha[5] * rnorm(1)
 
-for(t in 2:T){
+for (t in 2:T) {
   y.pos <- y[t - 1] * (y[t - 1] >= 0)
   y.neg <- y[t - 1] * (y[t - 1] < 0)
   f[t] <- alpha[1] + alpha[2] * f[t - 1] +
@@ -99,6 +102,7 @@ for(t in 2:T){
   y[t] <- f[t] + scale.t * rnorm(1)
 }
 
+## Fit the autoregressive ES model
 fit <- esreg.ts(
   y = y,
   tau = tau,
@@ -112,9 +116,14 @@ fit <- esreg.ts(
 ## Summarize the fitted model
 summary(fit)
 
-## Return the estimated covariance matrix and sandwich components
+## Return the covariance matrix and sandwich components
 summary(fit, covariance = TRUE)
 
+}
+\references{
+Cai, P., Tan, K. M., and He, X. (2026).
+Estimation and Inference for the Joint Autoregressive Quantile-Expected Shortfall Model.
+\emph{arXiv preprint}, arXiv:2610.25730.
 }
 \seealso{
 \code{\link{esreg.ts}}

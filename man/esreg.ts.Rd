@@ -64,31 +64,27 @@ model.
 An object of class \code{"esreg.ts"} is a list containing at least the
 following components:
 \describe{
-  \item{\code{coefficients}}{estimated coefficients from the final weighted
-  expected shortfall regression fit.}
-  \item{\code{beta.hat}}{estimated coefficients from the first-step
-  conditional quantile regression fit.}
-  \item{\code{theta.hat}}{estimated coefficients from the final weighted
-  expected shortfall regression fit.}
-  \item{\code{theta.unweighted}}{estimated coefficients from the unweighted
-  expected shortfall regression fit.}
-  \item{\code{quantile.fitted}}{fitted conditional quantile values.}
-  \item{\code{es.fitted}}{fitted conditional expected shortfall values from
-  the final weighted fit.}
-  \item{\code{fitted.values}}{fitted conditional expected shortfall values
-  from the final weighted fit.}
-  \item{\code{residuals}}{residuals from the final weighted expected
+  \item{\code{coefficients}}{the estimated coefficients from the final
+  weighted expected shortfall regression fit.}
+  \item{\code{beta.hat}}{the estimated coefficients from the first-step
+  quantile regression fit.}
+  \item{\code{theta.unweighted}}{the estimated coefficients from the
+  unweighted expected shortfall regression fit.}
+  \item{\code{residuals}}{the residuals from the final weighted expected
   shortfall regression fit.}
+  \item{\code{fitted.values}}{the fitted conditional expected shortfall
+  values from the final weighted fit.}
+  \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
+  \item{\code{pseudo.response}}{the pseudo-response used in the weighted
+  expected shortfall regression fit.}
   \item{\code{response.residuals}}{the observed response minus the fitted
   conditional expected shortfall values.}
-  \item{\code{pseudo.response}}{the pseudo-response used for expected
-  shortfall estimation.}
-  \item{\code{weights}}{weights used in the final weighted expected
+  \item{\code{weights}}{the weights used in the final weighted expected
   shortfall regression fit.}
-  \item{\code{VC}}{the estimated sandwich matrix used for inference on the
-  weighted expected shortfall coefficients.}
-  \item{\code{ci}}{confidence intervals computed during model fitting.}
-  \item{\code{tau}}{the quantile level used for estimation.}
+  \item{\code{VC}}{the estimated sandwich matrix used for inference on
+  the weighted expected shortfall coefficients.}
+  \item{\code{ci}}{the confidence intervals computed during model fitting.}
+  \item{\code{tau}}{the tail probability used for estimation.}
   \item{\code{qmodel}}{the autoregressive specification used for the
   conditional quantile.}
   \item{\code{emodel}}{the autoregressive specification used for the
@@ -110,14 +106,30 @@ following components:
 }
 \description{
 Fits an autoregressive expected shortfall (ES) regression model for a
-univariate time series using a two-step regression approach in Cai et al (2026).
-The function also fits the corresponding autoregressive quantile regression model,
-which is used in the first step of estimation.
+univariate time series using the two-step regression approach of
+Cai et al. (2026). The function also fits the corresponding autoregressive
+quantile regression model, which is used in the first step of estimation.
 }
 \details{
-Let \eqn{e_t(\boldsymbol{\theta})} denote the conditional expected
-shortfall at time \eqn{t}. The argument \code{emodel} selects its
-autoregressive specification from the following models.
+Let \eqn{\{Y_t\}} be a univariate time series and
+\eqn{\mathcal{F}_{t-1}} denote the information available up to time
+\eqn{t-1}. For a given quantile level \eqn{\tau \in (0,1)}, the
+joint lower-tail quantile-ES model is
+\deqn{
+Q_\tau(Y_t \mid \mathcal{F}_{t-1})
+= q_t(\boldsymbol{\beta}^*),~~\mathrm{and~~}
+\mathrm{ES}^{\mathrm{L}}_\tau(Y_t \mid \mathcal{F}_{t-1})
+= \mathbb{E}\{Y_t \mid \mathcal{F}_{t-1},
+Y_t \leq Q_\tau(Y_t \mid \mathcal{F}_{t-1})\}
+= e_t(\boldsymbol{\theta}^*).
+}
+Here \eqn{\boldsymbol{\theta}^*} is the target ES parameter,
+whereas \eqn{\boldsymbol{\beta}^*} is the quantile regression
+parameter estimated in the first step.
+
+The argument \code{emodel} selects the autoregressive
+specification of \eqn{e_t(\boldsymbol{\theta})}
+from the following models.
 
 Define
 \eqn{Y_t^+ = Y_t\mathbf{1}(Y_t \geq 0)} and
@@ -144,7 +156,7 @@ For \code{"GARCH"}, the specification is
 e_t(\boldsymbol{\theta})
 =
 -\sqrt{
-\theta_0 + \theta_1 e_{t-1}^2(\boldsymbol{\theta})
+\theta_0 + \theta_1 \left[e_{t-1}(\boldsymbol{\theta})\right]^2
 + \theta_2 Y_{t-1}^2
 }.
 }
@@ -187,11 +199,11 @@ functions of their parameters and are therefore fitted by numerical
 optimization.
 
 An unweighted autoregressive ES fit is first obtained. Let
-\eqn{\hat q_t} and \eqn{\hat e_t} denote the fitted conditional quantile
+\eqn{\hat{q}_t} and \eqn{\hat{e}_t} denote the fitted conditional quantile
 and unweighted conditional expected shortfall, respectively. The weights
 for the final weighted fit are constructed from
 \deqn{
-w_t = (\hat q_t - \hat e_t)^{-2}.
+w_t = (\hat{q}_t - \hat{e}_t)^{-2}.
 }
 The final ES coefficients are then obtained from the corresponding weighted
 autoregressive ES fit.
@@ -209,12 +221,13 @@ T <- 5000
 tau <- 0.1
 alpha <- c(0.45, 0.65, -0.25, -0.35, 0.8, 0.35, 0.25)
 
+## Simulate autoregressive time series data
 y <- numeric(T)
 f <- numeric(T)
 f[1] <- alpha[1] / (1 - alpha[2])
 y[1] <- f[1] + alpha[5] * rnorm(1)
 
-for(t in 2:T){
+for (t in 2:T) {
   y.pos <- y[t - 1] * (y[t - 1] >= 0)
   y.neg <- y[t - 1] * (y[t - 1] < 0)
   f[t] <- alpha[1] + alpha[2] * f[t - 1] +
@@ -223,6 +236,7 @@ for(t in 2:T){
   y[t] <- f[t] + scale.t * rnorm(1)
 }
 
+## Calculate the true ES coefficients
 es.eta <- -stats::dnorm(stats::qnorm(tau)) / tau
 theta.true <- c(
   alpha[1] + (1 - alpha[2]) * alpha[5] * es.eta,
@@ -265,5 +279,6 @@ Estimation and Inference for the Joint Autoregressive Quantile-Expected Shortfal
 \emph{arXiv preprint}, arXiv:2610.25730.
 }
 \seealso{
-\code{\link{summary.esreg.ts}}, \code{\link{lesreg}}
+\code{\link{summary.esreg.ts}}, \code{\link{print.esreg.ts}},
+\code{\link{lesreg}}
 }
