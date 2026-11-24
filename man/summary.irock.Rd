@@ -3,7 +3,7 @@
 \name{print.summary.irock}
 \alias{print.summary.irock}
 \alias{summary.irock}
-\title{Summarize an i-Rock fit}
+\title{Summarizing i-Rock Fits}
 \usage{
 \method{print}{summary.irock}(x, digits = max(5L, getOption("digits") - 2L), ...)
 
@@ -17,22 +17,23 @@
 )
 }
 \arguments{
-\item{x}{An object returned by \code{summary.irock()}.}
+\item{x}{an object returned by \code{summary.irock()}.}
 
-\item{digits}{Number of significant digits when printing the summary.}
+\item{digits}{number of significant digits when printing the summary.}
 
-\item{...}{Reserved in \code{summary.irock()}; arguments passed to
+\item{...}{reserved in \code{summary.irock()}; arguments passed to
 \code{print()} for the formatted coefficient table in the print method.}
 
-\item{object}{A fitted object returned by \code{\link{irock}}.}
+\item{object}{a fitted object returned by \code{\link{irock}}.}
 
-\item{method}{Covariance estimation method. Only \code{"rwb"} is supported.}
+\item{method}{covariance estimation method. Only \code{"rwb"} is supported.}
 
-\item{covariance}{Logical; return the bootstrap covariance matrix?}
+\item{covariance}{logical flag indicating whether the bootstrap covariance
+matrix should be returned.}
 
-\item{level}{A confidence level strictly between zero and one.}
+\item{level}{a confidence level strictly between zero and one.}
 
-\item{B}{Number of bootstrap replications, an integer greater than one.}
+\item{B}{number of bootstrap replications, an integer greater than one.}
 }
 \value{
 \code{summary.irock} returns an object of class
@@ -64,11 +65,11 @@ components are:
 \description{
 Summarizes a fitted linear expected shortfall (ES) regression model and
 provides standard errors, confidence intervals, and \eqn{p}-values for the
-estimated ES regression coefficients, under the i-Rock framework.
+estimated ES regression coefficients under the i-Rock framework.
 }
 \details{
 Each replication draws independent mean-one exponential weights for the
-observations retained by \code{irock()}. It refits the initial quantile
+observations retained by \code{\link{irock}}. It refits the initial quantile
 and expected shortfall estimators and the final integrated quantile loss,
 holding the fitted covariate bins or nearest-neighbor neighborhoods fixed.
 The same observation weight is used at every stage and in every
@@ -89,6 +90,15 @@ reproducibility.
 set.seed(21)
 dat <- data.frame(x = runif(1000))
 dat$y <- 2 + dat$x + rnorm(1000)
+
 fit <- irock(y ~ x, data = dat, tau = 0.1, bins = 3, ds = 0.02)
 summary(fit, B = 200)
+
+}
+\references{
+Li, Y., Zhang, S., and He, X. (2026). Expected Shortfall Regression
+via Optimization. \emph{Journal of the American Statistical Association}, in press.
+}
+\seealso{
+\code{\link{irock}}
 }

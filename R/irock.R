@@ -1,83 +1,95 @@
-#' Fit linear expected shortfall regression by i-Rock approach
+#' Fit Linear Expected Shortfall Regression by i-Rock Approach
 #'
 #' @description
 #' Fits a linear conditional expected shortfall (ES) model by projecting
 #' initial conditional ES curves using weighted quantile regression.
-#' The method is based on the i-Rock framework introduced in Li et al (2026).
+#' The method is based on the i-Rock framework introduced in Li et al. (2026).
 #'
-#' @param formula A two-sided formula with one numeric response. Usual
+#' @param formula a two-sided formula with one numeric response. Usual
 #'   model-matrix terms, including factors and interactions, are supported.
 #'   Offsets are not supported.
-#' @param data An optional data frame, list, or environment containing variables
+#' @param data an optional data frame, list, or environment containing variables
 #'   in the formula.
-#' @param tau One quantile probability strictly between zero and one.
-#' @param tail Which tail to model. The default is the lower tail, with
+#' @param tau one quantile probability strictly between zero and one.
+#' @param tail which tail to model. The default is the lower tail, with
 #'   probability mass \code{tau}; the upper tail has mass \code{1 - tau}.
-#' @param na.action A missing-data action passed to \code{model.frame()}.
-#' @param contrasts Optional list of contrasts passed to \code{model.matrix()}.
-#' @param delta Width of the truncated probability window, in \eqn{(0,1]}.
-#' @param ds Optional positive target spacing for the probability grid.
-#'   \code{NULL} uses the sample-size rule described in Appendix G.1 of Li et al (2026).
-#' @param wins Fraction of the left side of the paper's upper-tail probability
+#' @param na.action a missing-data action passed to \code{model.frame()}.
+#' @param contrasts optional list of contrasts passed to \code{model.matrix()}.
+#' @param delta width of the truncated probability window, in \eqn{(0,1]}.
+#' @param ds optional positive target spacing for the probability grid.
+#'   \code{NULL} uses the sample-size rule described in Appendix G.1 of Li et al. (2026).
+#' @param wins fraction of the left side of the paper's upper-tail probability
 #'   window to estimate directly, in \eqn{(0,1]}. The omitted part is filled
 #'   with a constant. One disables this extension. Ignored for all-discrete
-#'   disjoint bins. For lower-tail fits this operates after response reflection.
-#' @param bins Optional positive integer number of marginal bins per continuous
-#'   covariate. \code{NULL} uses the simulation rule in Section 5 of Li et al (2026).
+#'   disjoint bins. For lower-tail fits, this operates after response reflection.
+#' @param bins optional positive integer number of marginal bins per continuous
+#'   covariate. \code{NULL} uses the simulation rule in Section 5 of Li et al. (2026).
 #'   Only used with disjoint bins.
-#' @param discrete Optional character vector naming additional numeric columns
+#' @param discrete optional character vector naming additional numeric columns
 #'   of the predictor model frame to treat as discrete. Factors, characters,
 #'   logicals, and numeric columns with fewer than 13 distinct values are
 #'   automatically treated as discrete.
-#' @param quantile_method Initial global quantile fit for continuous or mixed
+#' @param quantile_method initial global quantile fit for continuous or mixed
 #'   designs: \code{"linear"} uses the formula design and \code{"spline"}
 #'   adds piecewise linear spline terms for the continuous model-frame columns.
 #'   All-discrete disjoint designs instead use group-specific sample quantiles.
-#' @param ll_weight Logical; use local design weights in the final fit for
+#' @param ll_weight logical; use local design weights in the final fit for
 #'   continuous/mixed bins or neighborhoods. All-discrete disjoint fits always
 #'   use group sizes.
-#' @param binning Use the paper's disjoint bins (default) or the
+#' @param binning use the paper's disjoint bins (default) or the
 #'   overlapping nearest-neighbor extension (\code{"knn"}).
-#' @param neighbors Number of neighbors for the optional nearest-neighbor fit.
+#' @param neighbors number of neighbors for the optional nearest-neighbor fit.
 #'   Defaults to the smaller of 500 and the number of retained rows.
-#' @param centers Number of representative observations for the optional
+#' @param centers number of representative observations for the optional
 #'   nearest-neighbor fit. Defaults to the smaller of 5 and the number of rows.
-#' @param medoids Logical; use CLARANS medoids for the nearest-neighbor fit
+#' @param medoids logical; use CLARANS medoids for the nearest-neighbor fit
 #'   instead of sampling representative observations without replacement.
 #'
 #' @details
-#'
 #' For continuous or mixed covariates, the method fits local linear regressions
 #' of the scores at a grid of probability levels and evaluates them at bin
 #' representatives. The final linear ES coefficients minimize the integrated
 #' quantile loss of these initial ES curves. With only discrete covariates,
 #' initial ES curves are empirical tail means within exact covariate groups.
-#' The detailed algorithms are included in Li et al (2026).
+#' The detailed algorithms are included in Li et al. (2026).
 #'
 #' @return An object of class \code{"irock"}, with components:
 #' \describe{
-#'   \item{\code{call}, \code{formula}, \code{terms}, \code{model}}{
-#'   The matched call, expanded formula, fitted terms, and model frame.}
-#'   \item{\code{na.action}, \code{contrasts}, \code{xlevels}}{
-#'   Missing-data action, predictor contrasts, and factor levels.}
-#'   \item{\code{tau}, \code{tail}, \code{coefficients}}{
-#'   Requested probability, tail, and named final ES coefficients.}
-#'   \item{\code{quantile}, \code{fitted.values}, \code{residuals}}{
-#'   Conditional quantile estimates, fitted ES, and the ES pseudo-response
-#'   minus fitted ES, respectively, at the requested level. Like the stored
-#'   vectors in an \code{lm} fit, these are in retained model-frame order.}
+#'   \item{\code{call}}{the matched call.}
+#'   \item{\code{formula}}{the expanded formula.}
+#'   \item{\code{terms}}{the fitted terms.}
+#'   \item{\code{model}}{the model frame.}
+#'   \item{\code{na.action}}{the missing-data action.}
+#'   \item{\code{contrasts}}{the predictor contrasts.}
+#'   \item{\code{xlevels}}{the factor levels.}
+#'   \item{\code{tau}}{the requested probability.}
+#'   \item{\code{tail}}{the requested tail.}
+#'   \item{\code{coefficients}}{the named final ES coefficients.}
+#'   \item{\code{quantile}}{the conditional quantile estimates.}
+#'   \item{\code{fitted.values}}{the fitted ES values.}
+#'   \item{\code{residuals}}{the ES pseudo-response minus fitted ES.}
 #' }
-#' @seealso \code{\link{summary.irock}} for random weighting bootstrap
-#'   inference on the expected shortfall coefficients.
+#'
+#' The \code{quantile}, \code{fitted.values}, and \code{residuals} vectors
+#' are computed at the requested level. Like the stored vectors in an
+#' \code{lm} fit, these are in retained model-frame order.
+#'
 #' @references
 #' Li, Y., Zhang, S., and He, X. (2026). Expected Shortfall Regression
 #' via Optimization. \emph{Journal of the American Statistical Association}, in press.
+#'
+#' @seealso
+#' \code{\link{summary.irock}} for random weighting bootstrap
+#' inference on the expected shortfall coefficients.
+#'
 #' @examples
 #' set.seed(21)
 #' dat <- data.frame(x = runif(1000))
 #' dat$y <- 2 + dat$x + rnorm(1000)
+#'
 #' fit <- irock(y ~ x, data = dat, tau = 0.1, bins = 3, ds = 0.02)
 #' fit$coefficients
+#'
 #' @export
 irock <- function(formula, data, tau = 0.1, tail = c("lower", "upper"),
                   na.action, contrasts = NULL, delta = 0.5, ds = NULL,

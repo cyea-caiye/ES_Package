@@ -1,23 +1,24 @@
-#' Summarize an i-Rock fit
+#' Summarizing i-Rock Fits
 #'
 #' @description
 #' Summarizes a fitted linear expected shortfall (ES) regression model and
 #' provides standard errors, confidence intervals, and \eqn{p}-values for the
-#' estimated ES regression coefficients, under the i-Rock framework.
+#' estimated ES regression coefficients under the i-Rock framework.
 #'
-#' @param object A fitted object returned by \code{\link{irock}}.
-#' @param x An object returned by \code{summary.irock()}.
-#' @param method Covariance estimation method. Only \code{"rwb"} is supported.
-#' @param covariance Logical; return the bootstrap covariance matrix?
-#' @param level A confidence level strictly between zero and one.
-#' @param B Number of bootstrap replications, an integer greater than one.
-#' @param digits Number of significant digits when printing the summary.
-#' @param ... Reserved in \code{summary.irock()}; arguments passed to
+#' @param object a fitted object returned by \code{\link{irock}}.
+#' @param x an object returned by \code{summary.irock()}.
+#' @param method covariance estimation method. Only \code{"rwb"} is supported.
+#' @param covariance logical flag indicating whether the bootstrap covariance
+#'   matrix should be returned.
+#' @param level a confidence level strictly between zero and one.
+#' @param B number of bootstrap replications, an integer greater than one.
+#' @param digits number of significant digits when printing the summary.
+#' @param ... reserved in \code{summary.irock()}; arguments passed to
 #'   \code{print()} for the formatted coefficient table in the print method.
 #'
 #' @details
 #' Each replication draws independent mean-one exponential weights for the
-#' observations retained by \code{irock()}. It refits the initial quantile
+#' observations retained by \code{\link{irock}}. It refits the initial quantile
 #' and expected shortfall estimators and the final integrated quantile loss,
 #' holding the fitted covariate bins or nearest-neighbor neighborhoods fixed.
 #' The same observation weight is used at every stage and in every
@@ -61,12 +62,21 @@
 #'   \code{covariance = TRUE}.}
 #' }
 #'
+#' @references
+#' Li, Y., Zhang, S., and He, X. (2026). Expected Shortfall Regression
+#' via Optimization. \emph{Journal of the American Statistical Association}, in press.
+#'
+#' @seealso
+#' \code{\link{irock}}
+#'
 #' @examples
 #' set.seed(21)
 #' dat <- data.frame(x = runif(1000))
 #' dat$y <- 2 + dat$x + rnorm(1000)
+#'
 #' fit <- irock(y ~ x, data = dat, tau = 0.1, bins = 3, ds = 0.02)
 #' summary(fit, B = 200)
+#'
 #' @export
 summary.irock <- function(object, method = "rwb", covariance = FALSE,
                           level = 0.95, B = 500L, ...) {
