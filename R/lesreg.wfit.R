@@ -77,11 +77,15 @@
 #'   \item{\code{quantile.residuals}}{the residuals from the first-step quantile
 #'   regression.}
 #'   \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
+#'   \item{\code{quantile.fit}}{the first-step weighted quantile regression fit,
+#'   or \code{NULL} if the design matrix has no columns.}
+#'   \item{\code{es.fit}}{the second-step weighted least-squares regression fit,
+#'   or \code{NULL} if the design matrix has no columns.}
 #'   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
 #'   weighted least-squares regression.}
 #'   \item{\code{response.residuals}}{the observed response minus the fitted
 #'   expected shortfall values.}
-#'   \item{\code{indicator}}{the vector of ``hitting indicators" that compute
+#'   \item{\code{indicator}}{the vector of "hitting indicators" that compute
 #'   \eqn{\mathbf{1}(Y_i \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}
 #'   when \code{upperTail = FALSE}, and
 #'   \eqn{\mathbf{1}(Y_i \geq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}

@@ -28,8 +28,7 @@ must be a single number strictly between 0 and 1. If
 \code{upperTail = FALSE}, the function performs inference for the
 lower-tail ES associated with quantile level \code{tau}. If
 \code{upperTail = TRUE}, the function performs inference for the
-upper-tail ES associated with quantile level \code{1 - tau}. This
-corresponds to \code{tau} in \code{\link{lesreg}}.}
+upper-tail ES associated with quantile level \code{1 - tau}.}
 
 \item{col}{integer specifying the column of \code{x}, and hence the slope
 coefficient, for which inference is performed. This must be an integer

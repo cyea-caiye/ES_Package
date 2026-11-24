@@ -15,7 +15,6 @@
 #'   \code{upperTail = FALSE}, the function fits the lower-tail ES associated
 #'   with quantile level \code{tau}. If \code{upperTail = TRUE}, the function
 #'   fits the upper-tail ES associated with quantile level \code{1 - tau}.
-#'   This corresponds to \code{tau} in \code{\link{lesreg}}.
 #' @param standardize logical. If \code{TRUE}, standardization is used in the
 #'   penalized fitting procedures where supported. The coefficients are
 #'   returned on the original covariate scale by the underlying fitting
@@ -45,7 +44,7 @@
 #' Let \eqn{\hat{Q}_i} denote the fitted conditional quantile for the \eqn{i}-th
 #' observation. The pseudo-response
 #' \deqn{
-#' \hat{Z}_i = \hat {Q}_i + \tau^{-1} \mathbf{1}(Y_i \leq \hat{Q}_i)(Y_i - \hat{Q}_i)
+#' \hat{Z}_i = \hat{Q}_i + \tau^{-1} \mathbf{1}(Y_i \leq \hat{Q}_i)(Y_i - \hat{Q}_i)
 #' }
 #' is then regressed on the same design matrix by penalized least squares using
 #' \code{\link[glmnet]{glmnet}}. The resulting coefficients estimate the

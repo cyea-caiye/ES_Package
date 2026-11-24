@@ -111,8 +111,8 @@
 #'
 #' In the second step, pseudo-response variables are first constructed as
 #' \deqn{
-#' \hat{W}_i = \frac{1}{\tau}\mathbf{1}(Y \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})
-#' (Y - \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta }})
+#' \hat{W}_i = \frac{1}{\tau}\mathbf{1}(Y_i \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})
+#' (Y_i - \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})
 #' + \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}}.
 #' }
 #' The ES regression coefficients are then estimated by least squares:
@@ -154,11 +154,11 @@
 #'   least-squares regression.}
 #'   \item{\code{response.residuals}}{the observed response minus the fitted
 #'   expected shortfall values.}
-#'   \item{\code{indicator}}{the vector of ``hitting indicators" that compute
+#'   \item{\code{indicator}}{the vector of "hitting indicators" that compute
 #'    \eqn{\mathbf{1}(Y_i \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}
 #'    when \code{upperTail = FALSE}, and
-#'    \eqn{\mathbf{1}(Y_i \geq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}}
-#'    when \code{upperTail = TRUE}.
+#'    \eqn{\mathbf{1}(Y_i \geq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}
+#'    when \code{upperTail = TRUE}.}
 #'   \item{\code{rank}}{the numeric rank of the fitted second-step linear model.}
 #'   \item{\code{weights}}{the specified weights, or \code{NULL} for an
 #'   unweighted fit.}

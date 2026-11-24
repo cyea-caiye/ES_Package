@@ -50,7 +50,7 @@
 #'
 
 #' @details
-#' Let \eqn{\{Y_t\}} be a univariate time series and
+#' Let \eqn{Y_t}, \eqn{t = 1, \ldots, T}, be a univariate time series and
 #' \eqn{\mathcal{F}_{t-1}} denote the information available up to time
 #' \eqn{t-1}. For a given quantile level \eqn{\tau \in (0,1)}, the
 #' joint lower-tail quantile-ES model is
@@ -143,7 +143,8 @@
 #' and unweighted conditional expected shortfall, respectively. The weights
 #' for the final weighted fit are constructed from
 #' \deqn{
-#' w_t = (\hat{q}_t - \hat{e}_t)^{-2}.
+#' w_t = \left\{q_t(\hat{\boldsymbol{\beta}}_T) -
+#' e_t(\hat{\boldsymbol{\theta}}_T)\right\}^{-2}.
 #' }
 #' The final ES coefficients are then obtained from the corresponding weighted
 #' autoregressive ES fit.

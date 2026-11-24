@@ -15,8 +15,7 @@
 #'   \code{upperTail = FALSE}, the function performs inference for the
 #'   lower-tail ES associated with quantile level \code{tau}. If
 #'   \code{upperTail = TRUE}, the function performs inference for the
-#'   upper-tail ES associated with quantile level \code{1 - tau}. This
-#'   corresponds to \code{tau} in \code{\link{lesreg}}.
+#'   upper-tail ES associated with quantile level \code{1 - tau}.
 #' @param col integer specifying the column of \code{x}, and hence the slope
 #'   coefficient, for which inference is performed. This must be an integer
 #'   between 1 and \code{ncol(x)}.

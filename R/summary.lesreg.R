@@ -67,6 +67,8 @@
 #' for the fitted expected shortfall regression model. The documented
 #' components are:
 #' \describe{
+#'   \item{\code{call}}{the call that produced the fitted object.}
+#'   \item{\code{terms}}{the terms object for the fitted model.}
 #'   \item{\code{coefficients.results}}{a matrix containing the estimated
 #'   expected shortfall regression coefficients, their standard errors, lower
 #'   and upper confidence limits, and \eqn{p}-values.}

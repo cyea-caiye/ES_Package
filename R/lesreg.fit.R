@@ -47,8 +47,8 @@
 #' \code{\link[quantreg]{rq.fit}}. The fitted conditional quantile is then
 #' used to construct the pseudo-response
 #' \deqn{
-#' \hat{W}_i = \frac{1}{\tau}\mathbf{1}(Y \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})
-#' (Y - \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta }})
+#' \hat{W}_i = \frac{1}{\tau}\mathbf{1}(Y_i \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})
+#' (Y_i - \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})
 #' + \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}},
 #' }
 #' which is regressed on the same design matrix using
@@ -80,11 +80,15 @@
 #'   \item{\code{quantile.residuals}}{the residuals from the first-step quantile
 #'   regression.}
 #'   \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
+#'   \item{\code{quantile.fit}}{the first-step quantile regression fit,
+#'   or \code{NULL} if the design matrix has no columns.}
+#'   \item{\code{es.fit}}{the second-step least-squares regression fit,
+#'   or \code{NULL} if the design matrix has no columns.}
 #'   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
 #'   least-squares regression.}
 #'   \item{\code{response.residuals}}{the observed response minus the fitted
 #'   expected shortfall values.}
-#'   \item{\code{indicator}}{the vector of ``hitting indicators" that compute
+#'   \item{\code{indicator}}{the vector of "hitting indicators" that compute
 #'   \eqn{\mathbf{1}(Y_i \leq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}
 #'   when \code{upperTail = FALSE}, and
 #'   \eqn{\mathbf{1}(Y_i \geq \boldsymbol{X}_i^{\intercal}\hat{\boldsymbol{\beta}})}

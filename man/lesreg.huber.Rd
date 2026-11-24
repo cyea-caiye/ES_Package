@@ -105,8 +105,8 @@ against heavy-tailed response data.
 Specifically, the ES regression coefficients are estimated by minimizing
 the empirical Huber loss:
 \deqn{
-\hat{\boldsymbol{\theta}} = \mathrm{argmin}_{\boldsymbol{\theta}} \frac{1}{N}
-\sum_{i = 1}^nH_{r}(\hat{W}_i - \boldsymbol{X}_i^{\intercal}\boldsymbol{\theta}),
+\hat{\boldsymbol{\theta}} = \mathrm{argmin}_{\boldsymbol{\theta}} \frac{1}{n}
+\sum_{i = 1}^{n} H_{r}(\hat{W}_i - \boldsymbol{X}_i^{\intercal}\boldsymbol{\theta}),
 }
 where \eqn{H_r(x) = x^2 \mathbf{1}(|x|\leq r)/2 + (r|x| - r^2/2)\mathbf{1}(|x|>r)}
 denotes the Huber loss function (Huber, 1973), and the robustification

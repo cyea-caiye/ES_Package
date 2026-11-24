@@ -76,6 +76,10 @@
 #'   \item{\code{quantile.residuals}}{the residuals from the first-step
 #'   quantile regression.}
 #'   \item{\code{quantile.fitted}}{the fitted conditional quantile values.}
+#'   \item{\code{quantile.fit}}{the first-step quantile regression fit,
+#'   or \code{NULL} if the design matrix has no columns.}
+#'   \item{\code{es.fit}}{the second-step adaptive Huber regression fit,
+#'   or \code{NULL} if the design matrix has no columns.}
 #'   \item{\code{pseudo.response}}{the pseudo-response used in the second-step
 #'   adaptive Huber regression.}
 #'   \item{\code{response.residuals}}{the observed response minus the fitted
@@ -86,14 +90,21 @@
 #'   fitting.}
 #'   \item{\code{df.residual}}{the residual degrees of freedom based on the
 #'   rank of the design matrix.}
+#'   \item{\code{assign}}{the assignment attribute of the design matrix.}
+#'   \item{\code{qr}}{the QR decomposition of the design matrix,
+#'   or \code{NULL} if the design matrix has no columns.}
 #'   \item{\code{huber.r}}{the adaptively selected Huber robustification
 #'   parameter.}
 #'   \item{\code{huber.iteration}}{the number of adaptive Huber iterations
 #'   performed.}
-#'   \item{\code{huber.epsilon}}{the Huber convergence tolerance used.}
-#'   \item{\code{huber.maxit}}{the maximum number of Huber iterations allowed.}
+#'   \item{\code{huber.epsilon}}{the Huber convergence tolerance used;
+#'   not returned if \code{x} has no columns.}
+#'   \item{\code{huber.maxit}}{the maximum number of Huber iterations allowed;
+#'   not returned if \code{x} has no columns.}
 #'   \item{\code{tail}}{a character string indicating whether the lower or
 #'   upper tail was fitted.}
+#'   \item{\code{contrasts}}{the contrasts attribute of the design matrix, if
+#'   present.}
 #' }
 #'
 #' @seealso
