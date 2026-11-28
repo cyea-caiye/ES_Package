@@ -110,7 +110,7 @@ fit <- esreg.ts(
   emodel = "AS12",
   REP = 5,
   MAXITER = 1000,
-  ini_spec = FALSE
+  ini_spec = TRUE
 )
 
 ## Summarize the fitted model

@@ -218,7 +218,7 @@ controlled by \code{order}.
 
 \examples{
 set.seed(2026)
-T <- 5000
+T <- 3000
 tau <- 0.1
 alpha <- c(0.45, 0.65, -0.25, -0.35, 0.8, 0.35, 0.25)
 
@@ -248,18 +248,6 @@ theta.true <- c(
   -alpha[2] * alpha[7] * es.eta
 )
 
-## Fit the model using random initial values
-fit <- esreg.ts(
-  y = y,
-  tau = tau,
-  qmodel = "AS12",
-  emodel = "AS12",
-  REP = 5,
-  MAXITER = 1000,
-  ini_spec = FALSE
-)
-theta.true
-fit$coefficients
 
 ## Fit the model using sieve-based initial values
 fit.ini <- esreg.ts(

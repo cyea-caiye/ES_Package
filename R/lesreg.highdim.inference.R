@@ -97,25 +97,25 @@
 #' \code{\link[glmnet]{cv.glmnet}}
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 1000
-#' p <- 100
+#' set.seed(2026)
+#' n <- 300
+#' p <- 30
 #' x <- matrix(rnorm(n * p), n, p)
 #' y <- x[, 1] - x[, 2] + rnorm(n)
 #' fit <- lesreg.highdim(x, y, tau = 0.05)
 #'
 #' ## Conduct statistical inference on the 1st, 2nd, 3rd, 5th and 7th coefficients
-#' coefs.true <- c(1,-1, 0,0,0)
+#' coefs.true <- c(1,-1)
 #' coef.debiase <- c()
 #' cis <- NULL
 #'
-#' for(col in c(1,2,3,5,7)) {
+#' for(col in c(1,2)) {
 #'   inf <- lesreg.highdim.inference(
 #'     x, y,
 #'     tau = 0.05,
 #'     col = col,
 #'     res_est = fit,
-#'     variance.method = "RCV"
+#'     variance.method = "plug-in"
 #'   )
 #'   coef.debiase <- c(coef.debiase, inf$theta_debias)
 #'   cis <- cbind(cis, inf$Conf.int)
