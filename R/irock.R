@@ -12,20 +12,20 @@
 #'   in the formula.
 #' @param tau one quantile probability strictly between zero and one.
 #' @param tail which tail to model. The default is the lower tail, with
-#'   probability mass \code{tau}; the upper tail has mass \code{1 - tau}.
+#'   probability mass \code{tau}.
 #' @param na.action a missing-data action passed to \code{model.frame()}.
-#' @param contrasts optional list of contrasts passed to \code{model.matrix()}.
+#' @param contrasts optional. list of contrasts passed to \code{model.matrix()}.
 #' @param delta width of the truncated probability window, in \eqn{(0,1]}.
-#' @param ds optional positive target spacing for the probability grid.
+#' @param ds optional. positive target spacing for the probability grid.
 #'   \code{NULL} uses the sample-size rule described in Appendix G.1 of Li et al. (2026).
 #' @param wins fraction of the left side of the paper's upper-tail probability
 #'   window to estimate directly, in \eqn{(0,1]}. The omitted part is filled
 #'   with a constant. One disables this extension. Ignored for all-discrete
 #'   disjoint bins. For lower-tail fits, this operates after response reflection.
-#' @param bins optional positive integer number of marginal bins per continuous
+#' @param bins optional. positive integer number of marginal bins per continuous
 #'   covariate. \code{NULL} uses the simulation rule in Section 5 of Li et al. (2026).
 #'   Only used with disjoint bins.
-#' @param discrete optional character vector naming additional numeric columns
+#' @param discrete optional. character vector naming additional numeric columns
 #'   of the predictor model frame to treat as discrete. Factors, characters,
 #'   logicals, and numeric columns with fewer than 13 distinct values are
 #'   automatically treated as discrete.
@@ -33,7 +33,7 @@
 #'   designs: \code{"linear"} uses the formula design and \code{"spline"}
 #'   adds piecewise linear spline terms for the continuous model-frame columns.
 #'   All-discrete disjoint designs instead use group-specific sample quantiles.
-#' @param ll_weight logical; use local design weights in the final fit for
+#' @param ll_weight logical. use local design weights in the final fit for
 #'   continuous/mixed bins or neighborhoods. All-discrete disjoint fits always
 #'   use group sizes.
 #' @param binning use the paper's disjoint bins (default) or the
@@ -42,7 +42,7 @@
 #'   Defaults to the smaller of 500 and the number of retained rows.
 #' @param centers number of representative observations for the optional
 #'   nearest-neighbor fit. Defaults to the smaller of 5 and the number of rows.
-#' @param medoids logical; use CLARANS medoids for the nearest-neighbor fit
+#' @param medoids logical. use CLARANS medoids for the nearest-neighbor fit
 #'   instead of sampling representative observations without replacement.
 #'
 #' @details

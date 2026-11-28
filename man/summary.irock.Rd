@@ -80,11 +80,6 @@ are basic bootstrap intervals, formed by subtracting the reversed quantiles
 of the bootstrap coefficient differences from the original estimates.
 Two-sided \eqn{p}-values use a normal approximation and are missing for
 coefficients with zero bootstrap standard error.
-
-This implementation uses independent observation weights and is intended
-for independent observations. It does not adjust for serial or cluster
-dependence. Set the R random seed before calling \code{summary()} for
-reproducibility.
 }
 \examples{
 set.seed(21)
