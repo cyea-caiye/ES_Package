@@ -96,6 +96,10 @@ summary.irock <- function(object, method = "rwb", covariance = FALSE,
     stop("Refit the model with the updated irock() before requesting a summary.",
          call. = FALSE)
   }
+  if (is.null(control$alpha) && object$tail == "upper") {
+    stop("Refit this upper-tail model with the updated irock(): 'tau' now denotes tail mass.",
+         call. = FALSE)
+  }
   mf <- object$model
   x <- stats::model.matrix(object$terms, mf, contrasts.arg = object$contrasts)
   y <- stats::model.response(mf)
@@ -114,7 +118,8 @@ summary.irock <- function(object, method = "rwb", covariance = FALSE,
   }
   lower_tail <- object$tail == "lower"
   sign_y <- if (lower_tail) -1 else 1
-  alpha <- if (lower_tail) 1 - object$tau else object$tau
+  # Older lower-tail fits already used this working quantile level.
+  alpha <- if (is.null(control$alpha)) 1 - object$tau else control$alpha
   y <- sign_y * y
 
   coef.rwb <- matrix(NA_real_, B, length(theta_hat),

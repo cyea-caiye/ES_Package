@@ -115,7 +115,7 @@ irock <- function(formula, data, tau = 0.1, tail = c("lower", "upper"),
   quantile_method <- match.arg(quantile_method)
 
   mf_call <- cl[c(1L, match(c("formula", "data", "na.action"),
-                             names(cl), nomatch = 0L))]
+                            names(cl), nomatch = 0L))]
   mf_call[[1L]] <- quote(stats::model.frame)
   mf_call$drop.unused.levels <- TRUE
   mf <- eval(mf_call, parent.frame())
@@ -146,7 +146,8 @@ irock <- function(formula, data, tau = 0.1, tail = c("lower", "upper"),
   xlevels <- Filter(Negate(is.null), xlevels)
 
   sign_y <- if (tail == "lower") -1 else 1
-  alpha <- if (tail == "lower") 1 - tau else tau
+  # The internal algorithm takes a quantile level on its upper-tail scale.
+  alpha <- 1 - tau
   if (alpha <= 0 || alpha >= 1) {
     stop("'tau' is too close to a boundary for the working tail.", call. = FALSE)
   }
@@ -174,7 +175,7 @@ irock <- function(formula, data, tau = 0.1, tail = c("lower", "upper"),
     delta = delta, ds = ds, wins = wins, bins = bins, discrete = discrete,
     quantile_method = quantile_method, ll_weight = ll_weight,
     binning = binning, neighbors = neighbors, centers = centers,
-    medoids = medoids,
+    medoids = medoids, alpha = alpha,
     representative = if (binning == "knn") groups$representative else NULL
   ))
 }

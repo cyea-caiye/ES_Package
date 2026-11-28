@@ -1,7 +1,7 @@
 # Internal estimation on the upper-tail scale of Li, Zhang and He (2026).
 
-.irock_score <- function(y, q, tau, lower = FALSE) {
-  if (lower) q + pmin(y - q, 0) / tau else q + pmax(y - q, 0) / (1 - tau)
+.irock_score <- function(y, q, tail_mass, lower = FALSE) {
+  if (lower) q + pmin(y - q, 0) / tail_mass else q + pmax(y - q, 0) / tail_mass
 }
 
 .irock_grid <- function(n, tau, delta, ds, wins, empirical) {
@@ -129,6 +129,7 @@
   root_w * drop(s$u[, keep, drop = FALSE] %*% (s$v[1L, keep] / s$d[keep]))
 }
 
+# Here tau is the working quantile level, not the public tail mass.
 .irock_fit <- function(x, y, tau, parts, delta, ds, wins, bins,
                        quantile_method, ll_weight, binning, neighbors, centers,
                        medoids, groups = NULL, obs_weights = NULL,
@@ -170,7 +171,7 @@
     local <- Map(function(idx, rep) {
       .irock_local(groups$continuous, idx, rep, obs_weights)
     },
-                 groups$index, groups$representative)
+    groups$index, groups$representative)
     # The reciprocal squared norm of the intercept influence vector equals
     # the unnormalized Schur complement (D.2) for full-rank bins.
     weight <- if (ll_weight) {
@@ -191,7 +192,7 @@
     for (t in seq_len(J)) {
       alpha <- levels[t]
       q <- drop(xq %*% .irock_qr(xq, y, alpha, "br", obs_weights))
-      z <- .irock_score(y, q, alpha)
+      z <- .irock_score(y, q, 1 - alpha)
       es[, t] <- vapply(seq_len(m), function(j) {
         sum(local[[j]] * z[groups$index[[j]]])
       }, numeric(1L))
